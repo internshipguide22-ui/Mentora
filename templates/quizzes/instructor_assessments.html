@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}My Assessments - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-clipboard-list"></i> My Assessments & Quizzes</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon quizzes">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_quizzes }}</h3>
+                <p>Total Quizzes</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon attempts">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_attempts }}</h3>
+                <p>Total Attempts</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon score">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ avg_score|floatformat:1 }}%</h3>
+                <p>Average Score</p>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title">All Quizzes</h3>
+    
+    {% if quizzes %}
+    <div class="quizzes-grid">
+        {% for quiz in quizzes %}
+        <div class="quiz-assessment-card">
+            <div class="quiz-card-header">
+                <h5>{{ quiz.title }}</h5>
+                <span class="quiz-badge">{{ quiz.total_questions }} Questions</span>
+            </div>
+            <div class="quiz-card-body">
+                <div class="quiz-info-item">
+                    <i class="fas fa-book"></i>
+                    <span>{{ quiz.lesson.module.course.title }}</span>
+                </div>
+                <div class="quiz-info-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span>{{ quiz.lesson.title }}</span>
+                </div>
+                <div class="quiz-info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ quiz.time_limit_minutes }} minutes</span>
+                </div>
+                <div class="quiz-info-item">
+                    <i class="fas fa-trophy"></i>
+                    <span>Passing: {{ quiz.passing_score }}%</span>
+                </div>
+                <div class="quiz-info-item">
+                    <i class="fas fa-redo"></i>
+                    <span>Max Attempts: {{ quiz.max_attempts }}</span>
+                </div>
+            </div>
+            <div class="quiz-card-footer">
+                <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="quiz-action-btn view">
+                    <i class="fas fa-eye"></i> View
+                </a>
+                <a href="{% url 'quizzes:edit_quiz' quiz.pk %}" class="quiz-action-btn edit">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'quizzes:delete_quiz' quiz.pk %}" class="quiz-action-btn delete">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <p>No quizzes created yet.</p>
+        <small>Create quizzes from lesson pages</small>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

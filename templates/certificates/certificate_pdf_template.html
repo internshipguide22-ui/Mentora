@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Certificate</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f4f4f4;
+        }
+        .certificate {
+            border: 10px solid #ffd700;
+            padding: 50px;
+            width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0056b3;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #007bff;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+        .signature {
+            margin-top: 50px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            display: inline-block;
+        }
+        .date {
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+        <h1>Certificate of Completion</h1>
+        <p>This certifies that</p>
+        <h2>{{ certificate.enrollment.student.get_full_name|default:certificate.enrollment.student.username }}</h2>
+        <p>has successfully completed the course</p>
+        <h3>"{{ certificate.course.title }}"</h3>
+        <p class="date">on {{ certificate.date_issued|date:"F d, Y" }}.</p>
+        {% if certificate.course.instructor %}
+            <p>Instructor: {{ certificate.course.instructor.get_full_name|default:certificate.course.instructor.username }}</p>
+        {% endif %}
+        <div class="signature">
+            <p>_________________________</p>
+            <p>Signature of Authority</p>
+        </div>
+    </div>
+</body>
+</html>

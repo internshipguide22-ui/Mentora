@@ -1,0 +1,141 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}System Analytics{% endblock %}
+
+{% block content %}
+<h1>System Analytics & Reports</h1>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-12">
+        <div class="card" style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <h3>Quick Access</h3>
+            <div class="btn-group" role="group">
+                <a href="{% url 'instructor_students_view' %}" class="btn btn-primary">👨‍🏫 Students by Instructor</a>
+                <a href="{% url 'all_instructors' %}" class="btn btn-info">📚 Manage Instructors</a>
+                <a href="{% url 'all_students_progress' %}" class="btn btn-success">👥 Student Progress</a>
+                <a href="{% url 'manage_users' %}" class="btn btn-secondary">👤 Manage Users</a>
+                <a href="{% url 'manage_courses' %}" class="btn btn-warning">📖 Manage Courses</a>
+                <a href="{% url 'manage_quizzes' %}" class="btn btn-danger">📝 Manage Quizzes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-3">
+        <div class="card" style="background: #4CAF50; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ total_users }}</h3>
+            <p>Total Users</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="background: #2196F3; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ total_courses }}</h3>
+            <p>Total Courses</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="background: #FF9800; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ total_enrollments }}</h3>
+            <p>Total Enrollments</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card" style="background: #9C27B0; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ total_certificates }}</h3>
+            <p>Certificates Issued</p>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-6">
+        <h2>User Statistics</h2>
+        <table class="table">
+            <tr><td>Students:</td><td><strong>{{ total_students }}</strong></td></tr>
+            <tr><td>Instructors:</td><td><strong>{{ total_instructors }}</strong></td></tr>
+            <tr><td>Admins:</td><td><strong>{{ total_admins }}</strong></td></tr>
+            <tr><td>Active Users:</td><td><strong>{{ active_users }}</strong></td></tr>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h2>Course Statistics</h2>
+        <table class="table">
+            <tr><td>Active Enrollments:</td><td><strong>{{ active_enrollments }}</strong></td></tr>
+            <tr><td>Completed Courses:</td><td><strong>{{ completed_courses }}</strong></td></tr>
+            <tr><td>Total Quizzes:</td><td><strong>{{ total_quizzes }}</strong></td></tr>
+            <tr><td>Completed Quizzes:</td><td><strong>{{ completed_quizzes }}</strong></td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-6">
+        <h2>Recent Users</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in recent_users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.user_type }}</td>
+                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <h2>Popular Courses</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Enrollments</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in popular_courses %}
+                <tr>
+                    <td>{{ course.title }}</td>
+                    <td><strong>{{ course.enrollment_count }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-12">
+        <h2>Recent Enrollments</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Progress</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in recent_enrollments %}
+                <tr>
+                    <td>{{ enrollment.student.username }}</td>
+                    <td>{{ enrollment.course.title }}</td>
+                    <td>{{ enrollment.progress|floatformat:0 }}%</td>
+                    <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

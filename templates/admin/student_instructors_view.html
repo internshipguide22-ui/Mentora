@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Students and Their Instructors{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Students and Their Instructors</h2>
+            <p class="text-muted">View which instructors each student is learning from</p>
+            <div class="mb-3">
+                <a href="{% url 'instructor_students_view' %}" class="btn btn-info">Switch to Instructors View</a>
+                <a href="{% url 'admin_analytics' %}" class="btn btn-secondary">Back to Analytics</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Total Students:</strong> {{ total_students }}
+    </div>
+
+    {% for data in student_data %}
+    <div class="card mb-4">
+        <div class="card-header" style="background-color: #28a745; color: white;">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-0">
+                        👨🎓 {{ data.student.get_full_name|default:data.student.username }}
+                    </h4>
+                    <small>{{ data.student.email }} | @{{ data.student.username }}</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="badge bg-light text-dark" style="font-size: 1.1em;">
+                        Learning from {{ data.instructor_count }} Instructor{{ data.instructor_count|pluralize }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if data.instructors %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Instructor</th>
+                            <th>Email</th>
+                            <th>Courses</th>
+                            <th>Completed</th>
+                            <th>Avg Progress</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instructor_info in data.instructors %}
+                        <tr>
+                            <td>
+                                <strong>{{ instructor_info.instructor.get_full_name|default:instructor_info.instructor.username }}</strong><br>
+                                <small class="text-muted">@{{ instructor_info.instructor.username }}</small>
+                            </td>
+                            <td>{{ instructor_info.instructor.email }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ instructor_info.courses|length }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ instructor_info.completed_count }}</span>
+                            </td>
+                            <td>
+                                <div class="progress" style="width: 100px; height: 20px;">
+                                    <div class="progress-bar bg-info" style="width: {{ instructor_info.avg_progress }}%">
+                                        {{ instructor_info.avg_progress|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#instructor-{{ instructor_info.instructor.id }}-student-{{ data.student.id }}">
+                                    View Courses
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="instructor-{{ instructor_info.instructor.id }}-student-{{ data.student.id }}">
+                            <td colspan="6" style="background-color: #f8f9fa;">
+                                <div class="p-3">
+                                    <h6>Courses with {{ instructor_info.instructor.get_full_name|default:instructor_info.instructor.username }}:</h6>
+                                    <ul class="list-group">
+                                        {% for course_info in instructor_info.courses %}
+                                        <li class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-5">
+                                                    <strong>{{ course_info.course.title }}</strong>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar {% if course_info.enrollment.completed %}bg-success{% else %}bg-warning{% endif %}" 
+                                                             style="width: {{ course_info.enrollment.progress }}%">
+                                                            {{ course_info.enrollment.progress|floatformat:0 }}%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    {% if course_info.enrollment.completed %}
+                                                        <span class="badge bg-success">Completed</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">In Progress</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <a href="{% url 'student_course_details' data.student.id course_info.course.id %}" 
+                                                       class="btn btn-sm btn-info">Details</a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center">This student is not enrolled in any courses yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-warning">No students found in the system.</div>
+    {% endfor %}
+</div>
+{% endblock %}

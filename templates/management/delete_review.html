@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Review{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Delete Review</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <p>Are you sure you want to delete this review?</p>
+            <div class="border p-3 mb-3">
+                <p><strong>Student:</strong> {{ review.student.username }}</p>
+                <p><strong>Course:</strong> {{ review.course.title }}</p>
+                <p><strong>Rating:</strong> 
+                    <span class="text-warning">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                        {% endfor %}
+                    </span>
+                </p>
+                <p><strong>Comment:</strong> {{ review.comment }}</p>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    <a href="{% url 'manage_reviews' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

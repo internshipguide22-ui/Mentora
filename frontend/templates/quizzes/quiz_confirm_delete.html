@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete Quiz{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Confirm Delete Quiz</h1>
+    <p class="lead">Are you sure you want to delete the quiz "{{ quiz.title }}"? This action cannot be undone.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'quizzes:quiz_detail' quiz.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

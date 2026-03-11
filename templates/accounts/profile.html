@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Profile - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">My Profile</h1>
+    
+    <div class="profile-row">
+        <div>
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-picture mb-3">
+                    {% else %}
+                    <div class="profile-picture-placeholder mb-3">
+                        <i class="fas fa-user fa-5x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <h4>{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted">{{ user.get_user_type_display }}</p>
+                    <p class="small text-muted">Member since {{ user.date_joined|date:"M Y" }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="card profile-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    {{ form.first_name|add_class:'form-control' }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    {{ form.last_name|add_class:'form-control' }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email|add_class:'form-control' }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            {{ form.phone|add_class:'form-control' }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Profile Picture</label>
+                            {{ form.profile_picture|add_class:'form-control' }}
+                            <small class="text-muted">Upload a profile picture (JPG, PNG)</small>
+                        </div>
+                        
+                        {% if form.date_of_birth %}
+                        <div class="mb-3">
+                            <label class="form-label">Date of Birth</label>
+                            {{ form.date_of_birth }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Bio</label>
+                            {{ form.bio }}
+                        </div>
+                        
+                        {% if form.website %}
+                        <div class="mb-3">
+                            <label class="form-label">Website</label>
+                            {{ form.website|add_class:'form-control' }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if form.address %}
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            {{ form.address }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if form.learning_style %}
+                        <div class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Learning Style</label>
+                                    {{ form.learning_style }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Daily Study Goal (minutes)</label>
+                                    {{ form.daily_study_goal }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,329 @@
+/* Page Header */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: #417690;
+    box-shadow: 0 4px 12px rgba(65, 118, 144, 0.15);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+}
+
+.stat-icon.students {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.stat-icon.modules {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.stat-icon.lessons {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.stat-content h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.stat-content p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Section Title */
+.section-title {
+    margin: 2rem 0 1.5rem 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+/* Students Progress Container */
+.students-progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.student-progress-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.student-progress-card:hover {
+    border-color: #417690;
+    box-shadow: 0 8px 20px rgba(65, 118, 144, 0.15);
+}
+
+/* Student Header */
+.student-header {
+    background: linear-gradient(135deg, #417690 0%, #2c5f7a 100%);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.student-avatar {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-info h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.25rem;
+}
+
+.student-info p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.875rem;
+}
+
+.student-status {
+    flex-shrink: 0;
+}
+
+/* Overall Progress */
+.overall-progress {
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.progress-label {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.progress-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #417690;
+}
+
+.lessons-count {
+    margin-top: 0.75rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.lessons-count i {
+    color: #10b981;
+}
+
+/* Modules Progress */
+.modules-progress {
+    padding: 1.5rem;
+}
+
+.modules-progress h6 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.modules-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.module-progress-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.module-name {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.module-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.lessons-stat {
+    font-size: 0.875rem;
+    color: #6b7280;
+    min-width: 60px;
+}
+
+.mini-progress {
+    flex: 1;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: #9ca3af;
+    transition: width 0.6s ease;
+}
+
+.mini-progress-fill.completed {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.mini-progress-fill.in-progress {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.percentage-stat {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #417690;
+    min-width: 50px;
+    text-align: right;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.enrolled-date {
+    color: #6b7280;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-details-btn {
+    padding: 0.5rem 1.25rem;
+    background: #417690;
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-details-btn:hover {
+    background: #2c5f7a;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(65, 118, 144, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.75rem;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6b7280;
+    font-size: 1.125rem;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .student-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .view-details-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

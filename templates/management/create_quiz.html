@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Quiz{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Create Quiz for {{ lesson.title }}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Quiz Title</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Instructions</label>
+                    <textarea name="instructions" class="form-control" rows="2" placeholder="Answer all questions based on the lesson..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Time Limit (minutes)</label>
+                        <input type="number" name="time_limit" class="form-control" value="30">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Passing Score (%)</label>
+                        <input type="number" name="passing_score" class="form-control" value="70" min="0" max="100">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Max Attempts</label>
+                        <input type="number" name="max_attempts" class="form-control" value="3" min="1">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Quiz</button>
+                <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

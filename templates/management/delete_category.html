@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Category{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Delete Category</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <p>Are you sure you want to delete the category <strong>{{ category.name }}</strong>?</p>
+            <p class="text-danger">This category has {{ category.courses.count }} course(s). Courses will not be deleted but will have no category.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a href="{% url 'manage_categories' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

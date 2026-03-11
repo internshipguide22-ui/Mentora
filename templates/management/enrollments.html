@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Enrollments{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Manage Enrollments</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-5">
+                    <input type="text" name="search" class="form-control" placeholder="Search by student or course..." value="{{ search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="course" class="form-control">
+                        <option value="">All Courses</option>
+                        {% for course in all_courses %}
+                        <option value="{{ course.id }}" {% if course_filter == course.id|stringformat:"s" %}selected{% endif %}>{{ course.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'manage_enrollments' %}" class="btn btn-secondary w-100">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                    <tr>
+                        <td>{{ enrollment.student.username }}</td>
+                        <td>{{ enrollment.course.title }}</td>
+                        <td>{{ enrollment.progress|floatformat:0 }}%</td>
+                        <td>
+                            {% if enrollment.completed %}
+                            <span class="badge bg-success">Completed</span>
+                            {% elif enrollment.is_active %}
+                            <span class="badge bg-primary">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'toggle_enrollment' enrollment.id %}" class="btn btn-sm btn-warning">
+                                {% if enrollment.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </a>
+                            {% if not enrollment.completed %}
+                            <a href="{% url 'mark_complete' enrollment.id %}" class="btn btn-sm btn-success">Complete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

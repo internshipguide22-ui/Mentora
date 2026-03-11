@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">System Analytics</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Filters</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="filter-form-grid">
+                <div>
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                </div>
+                <div>
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                </div>
+                <div>
+                    <label class="form-label">User Type</label>
+                    <select name="user_type" class="form-select">
+                        <option value="">All</option>
+                        <option value="student" {% if user_type == 'student' %}selected{% endif %}>Student</option>
+                        <option value="instructor" {% if user_type == 'instructor' %}selected{% endif %}>Instructor</option>
+                        <option value="admin" {% if user_type == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="filter-buttons">
+                    <button type="submit" class="filter-btn filter-btn-primary">Apply</button>
+                    <a href="{% url 'analytics_dashboard' %}" class="filter-btn filter-btn-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="export-buttons-grid">
+        <a href="{% url 'export_analytics_csv' %}" class="export-btn export-btn-green"><i class="fas fa-download"></i> Export Analytics (Excel)</a>
+        <a href="{% url 'export_users_csv' %}" class="export-btn export-btn-blue"><i class="fas fa-download"></i> Export Users (Excel)</a>
+        <a href="{% url 'export_enrollments_csv' %}" class="export-btn export-btn-orange"><i class="fas fa-download"></i> Export Enrollments (Excel)</a>
+    </div>
+
+    <div class="analytics-stats-grid">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <h3>{{ total_users }}</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <h3>{{ total_courses }}</h3>
+                <p>Total Courses</p>
+            </div>
+        </div>
+        <div class="card text-center bg-warning text-white">
+            <div class="card-body">
+                <h3>{{ total_enrollments }}</h3>
+                <p>Enrollments</p>
+            </div>
+        </div>
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <h3>{{ total_certificates }}</h3>
+                <p>Certificates</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-grid-2">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">User Statistics</h5></div>
+            <div class="card-body">
+                <table class="table">
+                    <tr><td>Students:</td><td><strong>{{ total_students }}</strong></td></tr>
+                    <tr><td>Instructors:</td><td><strong>{{ total_instructors }}</strong></td></tr>
+                    <tr><td>Admins:</td><td><strong>{{ total_admins }}</strong></td></tr>
+                    <tr><td>Active Users:</td><td><strong>{{ active_users }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">Course Statistics</h5></div>
+            <div class="card-body">
+                <table class="table">
+                    <tr><td>Active Enrollments:</td><td><strong>{{ active_enrollments }}</strong></td></tr>
+                    <tr><td>Completed Courses:</td><td><strong>{{ completed_courses }}</strong></td></tr>
+                    <tr><td>Total Quizzes:</td><td><strong>{{ total_quizzes }}</strong></td></tr>
+                    <tr><td>Completed Quizzes:</td><td><strong>{{ completed_quizzes }}</strong></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-grid-2">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">Recent Users</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>Username</th><th>Type</th><th>Joined</th></tr></thead>
+                    <tbody>
+                        {% for user in recent_users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td><span class="badge bg-primary">{{ user.user_type }}</span></td>
+                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">Popular Courses</h5></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>Course</th><th>Enrollments</th></tr></thead>
+                    <tbody>
+                        {% for course in popular_courses %}
+                        <tr>
+                            <td>{{ course.title }}</td>
+                            <td><strong>{{ course.enrollment_count }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h5 class="mb-0">Recent Enrollments</h5></div>
+        <div class="card-body">
+            <table class="table">
+                <thead><tr><th>Student</th><th>Course</th><th>Progress</th><th>Date</th></tr></thead>
+                <tbody>
+                    {% for enrollment in recent_enrollments %}
+                    <tr>
+                        <td>{{ enrollment.student.username }}</td>
+                        <td>{{ enrollment.course.title }}</td>
+                        <td>{{ enrollment.progress|floatformat:0 }}%</td>
+                        <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

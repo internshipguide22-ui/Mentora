@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}My Certificates{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>My Certificates</h1>
+    {% if certificates %}
+        <div class="row">
+            {% for certificate in certificates %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ certificate.enrollment.course.title }}</h5>
+                            <p class="card-text">Issued: {{ certificate.issued_date|date:"F d, Y" }}</p>
+                            <p class="card-text">Certificate ID: {{ certificate.certificate_id }}</p>
+                            <div class="btn-group">
+                                <a href="{% url 'view_certificate' certificate.id %}" class="btn btn-primary">View</a>
+                                <a href="{% url 'edit_certificate' certificate.id %}" class="btn btn-secondary">Edit</a>
+                                <a href="{% url 'delete_certificate' certificate.id %}" class="btn btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You don't have any certificates yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

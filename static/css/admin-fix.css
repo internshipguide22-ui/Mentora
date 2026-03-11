@@ -1,0 +1,269 @@
+/* Admin Panel Button Fixes */
+.admin-actions .btn,
+.admin-btn,
+.card-header .btn,
+.card-footer .btn,
+table .btn {
+    width: auto !important;
+    display: inline-flex !important;
+}
+
+.btn-group .btn,
+.action-buttons .btn,
+.button-group .btn {
+    width: auto !important;
+}
+
+/* Ensure form buttons don't stretch */
+form .btn:not(.btn-block) {
+    width: auto !important;
+}
+
+/* Dashboard Cards - Compact */
+.dashboard-card {
+    max-width: 250px;
+}
+
+.dashboard-stats,
+.admin-stats-grid,
+.row.mb-4 {
+    display: grid !important;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem 1rem;
+}
+
+.dashboard-card h2 {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+}
+
+.dashboard-card h5 {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.dashboard-card i {
+    font-size: 2rem;
+}
+
+/* Admin Actions Grid - Better Spacing */
+.admin-actions-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+/* Analytics Grids - Proper Alignment */
+.analytics-stats-grid {
+    display: grid !important;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    margin-bottom: 2rem;
+}
+
+.analytics-grid-2 {
+    display: grid !important;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    margin-bottom: 2rem;
+}
+
+.export-buttons-grid {
+    display: grid !important;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    margin-bottom: 2rem;
+}
+
+.filter-form-grid {
+    display: grid !important;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    align-items: end;
+}
+
+/* Card Spacing */
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-header {
+    padding: 1rem 1.5rem;
+}
+
+/* Row and Column Fixes */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0;
+}
+
+.row > [class*='col-'] {
+    padding: 0;
+}
+
+.col-12 {
+    width: 100%;
+}
+
+.col-md-2 { width: 16.66%; }
+.col-md-3 { width: 25%; }
+.col-md-4 { width: 33.33%; }
+
+@media (max-width: 767px) {
+    .col-md-2, .col-md-3, .col-md-4 {
+        width: 100%;
+    }
+}
+
+/* Alignment */
+.align-items-center {
+    align-items: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Progress Bar */
+.progress {
+    height: 25px;
+    background: var(--gray-200);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    transition: width 0.6s ease;
+}
+
+.bg-success { background: var(--success) !important; }
+.bg-primary { background: var(--primary) !important; }
+.bg-warning { background: var(--warning) !important; }
+.bg-info { background: #3b82f6 !important; }
+
+/* Badge Sizing */
+.badge.fs-6 {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.admin-btn {
+    padding: 1.25rem 1rem;
+    min-height: 110px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.admin-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.admin-btn i {
+    font-size: 2rem;
+}
+
+.admin-btn span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Card Border */
+.card.border {
+    border: 2px solid var(--gray-200) !important;
+}
+
+/* Collapse Content Grid - 3 Cards Per Row */
+.collapse .row.g-3,
+.collapse .row {
+    display: grid !important;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .collapse .row.g-3,
+    .collapse .row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .collapse .row.g-3,
+    .collapse .row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.collapse .col-12 {
+    width: 100% !important;
+}
+
+/* Table Alignment Fix */
+.table {
+    width: 100%;
+    margin: 0;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.card-body.p-0 {
+    overflow-x: auto;
+}
+
+/* D-flex Fix */
+.d-flex {
+    display: flex !important;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+/* Collapse Table Content */
+.collapse td[colspan] {
+    padding: 0 !important;
+}
+
+.collapse .p-4 {
+    padding: 1.5rem !important;
+}
+
+/* Card Shadow */
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}

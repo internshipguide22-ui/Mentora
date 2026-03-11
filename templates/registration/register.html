@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Register - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <div class="card">
+            <div class="card-header text-center" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; padding: 1.5rem;">
+                <h3 class="mb-0">Create an Account</h3>
+            </div>
+            <div class="card-body" style="padding: 2rem;">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="register-grid">
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.username.label }}</label>
+                                    {{ form.username|add_class:'form-control' }}
+                                    {% for error in form.username.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.email.label }}</label>
+                                    {{ form.email|add_class:'form-control' }}
+                                    {% for error in form.email.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.first_name.label }}</label>
+                                    {{ form.first_name|add_class:'form-control' }}
+                                    {% for error in form.first_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.last_name.label }}</label>
+                                    {{ form.last_name|add_class:'form-control' }}
+                                    {% for error in form.last_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.password1.label }}</label>
+                                    <div style="position: relative;">
+                                        {{ form.password1|add_class:'form-control' }}
+                                        <button type="button" onclick="togglePassword('{{ form.password1.id_for_label }}')" style="position: absolute; right: 0; top: 0; height: 100%; padding: 0 1rem; background: none; border: none; cursor: pointer; color: var(--gray-500);">
+                                            <i class="fas fa-eye" id="eye-{{ form.password1.id_for_label }}"></i>
+                                        </button>
+                                    </div>
+                                    {% for error in form.password1.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.password2.label }}</label>
+                                    <div style="position: relative;">
+                                        {{ form.password2|add_class:'form-control' }}
+                                        <button type="button" onclick="togglePassword('{{ form.password2.id_for_label }}')" style="position: absolute; right: 0; top: 0; height: 100%; padding: 0 1rem; background: none; border: none; cursor: pointer; color: var(--gray-500);">
+                                            <i class="fas fa-eye" id="eye-{{ form.password2.id_for_label }}"></i>
+                                        </button>
+                                    </div>
+                                    {% for error in form.password2.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.user_type.label }}</label>
+                                    {{ form.user_type|add_class:'form-select' }}
+                                    {% for error in form.user_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.phone.label }}</label>
+                                    {{ form.phone|add_class:'form-control' }}
+                                    {% for error in form.phone.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.date_of_birth.label }}</label>
+                                    {{ form.date_of_birth }}
+                                    {% for error in form.date_of_birth.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">{{ form.profile_picture.label }}</label>
+                                    {{ form.profile_picture|add_class:'form-control' }}
+                                    {% for error in form.profile_picture.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block mt-3">Register</button>
+                        </form>
+            </div>
+            <div class="card-footer text-center" style="padding: 1rem; background: var(--gray-100);">
+                <small>Already have an account? <a href="{% url 'accounts:login' %}" style="color: var(--primary); font-weight: 600;">Login</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('eye-' + fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}

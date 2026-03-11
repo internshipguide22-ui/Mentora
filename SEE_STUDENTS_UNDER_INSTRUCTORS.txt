@@ -1,0 +1,68 @@
+========================================
+  SEE STUDENTS UNDER INSTRUCTORS
+========================================
+
+STEP 1: Start Server
+--------------------
+python manage.py runserver
+
+
+STEP 2: Login as Admin
+-----------------------
+URL: http://127.0.0.1:8000/accounts/login/
+Username: admin
+Password: admin123
+
+
+STEP 3: You're at Admin Dashboard
+----------------------------------
+After login, you'll automatically be at:
+http://127.0.0.1:8000/accounts/dashboard/
+
+
+STEP 4: Scroll Down
+--------------------
+You'll see a section:
+"Students Learning Under Instructors"
+
+
+STEP 5: See the Data!
+----------------------
+You'll see tables like this:
+
+┌─────────────────────────────────────────┐
+│ 👔 John Doe                 [3 Students]│
+│ john@example.com                        │
+├─────────────────────────────────────────┤
+│ Student Name    │ Course      │ Progress│
+├─────────────────┼─────────────┼─────────┤
+│ Jane Smith      │ Python      │ 75%     │
+│ Bob Johnson     │ Python      │ 45%     │
+│ Alice Brown     │ Web Dev     │ 90%     │
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│ 👔 Mary Wilson              [2 Students]│
+│ mary@example.com                        │
+├─────────────────────────────────────────┤
+│ Student Name    │ Course      │ Progress│
+├─────────────────┼─────────────┼─────────┤
+│ Tom Davis       │ Data Sci    │ 30%     │
+│ Sara Lee        │ Data Sci    │ 65%     │
+└─────────────────────────────────────────┘
+
+
+========================================
+           THAT'S IT!
+========================================
+
+You can see:
+✓ Instructor name
+✓ Student name  
+✓ Which course they're taking
+✓ Their progress percentage
+✓ Status (Completed/In Progress)
+
+All on ONE page - the admin dashboard!
+
+========================================

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ student.get_full_name }} - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <a href="{% url 'course_student_progress' course.id %}" class="btn btn-secondary mb-4">
+        <i class="fas fa-arrow-left"></i> Back to Course
+    </a>
+    
+    <h2 class="mb-4">Student Progress Details</h2>
+
+    <div class="info-cards-grid">
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="fas fa-user-graduate"></i>
+                <h5>Student Information</h5>
+            </div>
+            <div class="info-card-body">
+                <div class="info-item">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">{{ student.get_full_name|default:student.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ student.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Username:</span>
+                    <span class="info-value">{{ student.username }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="info-card-header">
+                <i class="fas fa-book"></i>
+                <h5>Course Information</h5>
+            </div>
+            <div class="info-card-body">
+                <div class="info-item">
+                    <span class="info-label">Course:</span>
+                    <span class="info-value">{{ course.title }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Instructor:</span>
+                    <span class="info-value">{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Enrolled:</span>
+                    <span class="info-value">{{ enrollment.enrollment_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        {% if enrollment.completed %}
+                            <span class="status-badge completed">Completed</span>
+                        {% else %}
+                            <span class="status-badge in-progress">In Progress</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-card">
+        <div class="progress-header">
+            <h5>Overall Progress</h5>
+            <span class="progress-percentage">{{ enrollment.progress|floatformat:1 }}%</span>
+        </div>
+        <div class="progress-bar-wrapper">
+            <div class="progress-bar-fill {% if enrollment.completed %}completed{% endif %}" style="width: {{ enrollment.progress }}%"></div>
+        </div>
+    </div>
+
+    <h3 class="section-title">Module & Lesson Progress</h3>
+    
+    <div class="modules-container">
+        {% for module_data in module_details %}
+        <div class="module-card">
+            <div class="module-header">
+                <div class="module-title">
+                    <i class="fas fa-folder"></i>
+                    <h5>{{ module_data.module.title }}</h5>
+                </div>
+                <div class="module-stats">
+                    <span class="stat-badge">{{ module_data.completed }}/{{ module_data.total }} Lessons</span>
+                    <span class="progress-badge {% if module_data.percentage == 100 %}completed{% elif module_data.percentage > 0 %}in-progress{% else %}not-started{% endif %}">
+                        {{ module_data.percentage|floatformat:0 }}%
+                    </span>
+                </div>
+            </div>
+            
+            <div class="lessons-list">
+                {% for lesson_data in module_data.lessons %}
+                <div class="lesson-item {% if lesson_data.is_completed %}completed{% endif %}">
+                    <div class="lesson-main">
+                        <div class="lesson-status-icon">
+                            {% if lesson_data.is_completed %}
+                                <i class="fas fa-check-circle"></i>
+                            {% else %}
+                                <i class="fas fa-circle"></i>
+                            {% endif %}
+                        </div>
+                        <div class="lesson-info">
+                            <h6>{{ lesson_data.lesson.title }}</h6>
+                            <div class="lesson-badges">
+                                {% if lesson_data.lesson.video_url or lesson_data.lesson.video_file %}
+                                    <span class="feature-badge video"><i class="fas fa-video"></i> Video</span>
+                                {% endif %}
+                                {% if lesson_data.lesson.attachment %}
+                                    <span class="feature-badge attachment"><i class="fas fa-paperclip"></i> Attachment</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lesson-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            {% if lesson_data.is_completed %}
+                                <span class="status-badge completed">Completed</span>
+                            {% else %}
+                                <span class="status-badge not-started">Not Started</span>
+                            {% endif %}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Completed:</span>
+                            <span class="detail-value">
+                                {% if lesson_data.completion_date %}
+                                    {{ lesson_data.completion_date|date:"M d, Y H:i" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Quiz Attempts:</span>
+                            <span class="detail-value">
+                                {% if lesson_data.quiz_attempts %}
+                                    <span class="quiz-badge">{{ lesson_data.quiz_attempts.count }} attempts</span>
+                                    {% for attempt in lesson_data.quiz_attempts|slice:":1" %}
+                                        <small class="text-muted">(Last: {{ attempt.started_at|date:"M d, Y" }})</small>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">No attempts</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

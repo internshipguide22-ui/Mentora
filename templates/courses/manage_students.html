@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Manage Students</h1>
+        <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-secondary">Back to Course</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">{{ course.title }}</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Total Enrollments:</strong> {{ enrollments.count }}</p>
+            <p><strong>Active Students:</strong> {{ enrollments|length }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Enrolled Students</h5>
+        </div>
+        <div class="card-body">
+            {% if enrollments %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Enrolled Date</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr>
+                            <td>{{ enrollment.student.get_full_name|default:enrollment.student.username }}</td>
+                            <td>{{ enrollment.student.email }}</td>
+                            <td>{{ enrollment.enrollment_date|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar {% if enrollment.completed %}bg-success{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ enrollment.progress }}%">
+                                        {{ enrollment.progress|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if enrollment.completed %}
+                                <span class="badge bg-success">Completed</span>
+                                {% elif enrollment.is_active %}
+                                <span class="badge bg-primary">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'courses:toggle_enrollment' enrollment.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm {% if enrollment.is_active %}btn-warning{% else %}btn-success{% endif %}">
+                                        {% if enrollment.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-4">No students enrolled yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

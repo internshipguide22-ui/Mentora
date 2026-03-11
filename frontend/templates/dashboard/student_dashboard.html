@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">My Enrolled Courses</h1>
+
+    {% if enrollments %}
+        <div class="row">
+            {% for enrollment in enrollments %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        {% if enrollment.course.thumbnail %}
+                            <img src="{{ enrollment.course.thumbnail.url }}" class="card-img-top" alt="{{ enrollment.course.title }} thumbnail">
+                        {% else %}
+                            <img src="{% static 'images/default_course_thumbnail.png' %}" class="card-img-top" alt="Default thumbnail">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ enrollment.course.title }}</h5>
+                            <p class="card-text">{{ enrollment.course.description|truncatechars:100 }}</p>
+                            <a href="{% url 'courses:course_detail' pk=enrollment.course.pk %}" class="btn btn-primary">View Course</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            You are not enrolled in any courses yet. Explore our <a href="{% url 'courses:course_list' %}">course catalog</a> to get started!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

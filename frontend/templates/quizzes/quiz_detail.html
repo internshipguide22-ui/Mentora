@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">{{ quiz.title }}</h1>
+    <p class="lead">{{ quiz.description }}</p>
+    <p><strong>Course:</strong> {{ quiz.course.title }}</p>
+    <p><strong>Instructor:</strong> {{ quiz.instructor.get_full_name }}</p>
+    <p><strong>Created:</strong> {{ quiz.created_at|date:"M d, Y" }}</p>
+
+    {% if user.is_authenticated and user.is_instructor and user == quiz.instructor %}
+    <div class="mb-4">
+        <a href="{% url 'quizzes:edit_quiz' quiz.id %}" class="btn btn-primary me-2">Edit Quiz</a>
+        <a href="{% url 'quizzes:delete_quiz' quiz.id %}" class="btn btn-danger">Delete Quiz</a>
+        <a href="{% url 'quizzes:create_question' quiz.id %}" class="btn btn-success ms-3">Add Question</a>
+    </div>
+    {% endif %}
+
+    <h2 class="mt-5">Questions</h2>
+    {% if quiz.questions.all %}
+    <div class="list-group">
+        {% for question in quiz.questions.all %}
+        <div class="list-group-item mb-3">
+            <h5>{{ forloop.counter }}. {{ question.text }}</h5>
+            {% if user.is_authenticated and user.is_instructor and user == quiz.instructor %}
+            <div class="mb-2">
+                <a href="{% url 'quizzes:edit_question' quiz.id question.id %}" class="btn btn-sm btn-primary">Edit Question</a>
+                <a href="{% url 'quizzes:delete_question' quiz.id question.id %}" class="btn btn-sm btn-danger">Delete Question</a>
+                <a href="{% url 'quizzes:create_choice' quiz.id question.id %}" class="btn btn-sm btn-success">Add Choice</a>
+            </div>
+            {% endif %}
+
+            <h6>Choices:</h6>
+            {% if question.choices.all %}
+            <ul class="list-group mb-3">
+                {% for choice in question.choices.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ choice.text }}
+                    {% if choice.is_correct %}
+                    <span class="badge bg-success">Correct</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Incorrect</span>
+                    {% endif %}
+                    {% if user.is_authenticated and user.is_instructor and user == quiz.instructor %}
+                    <div>
+                        <a href="{% url 'quizzes:edit_choice' quiz.id question.id choice.id %}" class="btn btn-sm btn-primary">Edit</a>
+                        <a href="{% url 'quizzes:delete_choice' quiz.id question.id choice.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </div>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No choices added yet for this question.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No questions available for this quiz yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

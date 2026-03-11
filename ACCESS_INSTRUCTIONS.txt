@@ -1,0 +1,81 @@
+===============================================
+  HOW TO ACCESS: STUDENTS BY INSTRUCTOR
+===============================================
+
+EXACT STEPS:
+
+1. Open Command Prompt/Terminal
+
+2. Navigate to project folder:
+   cd C:\Users\D E L L\Desktop\trae_lms
+
+3. Start server:
+   python manage.py runserver
+
+4. Open web browser (Chrome, Firefox, Edge)
+
+5. Type this URL EXACTLY:
+   http://127.0.0.1:8000/admin/
+
+6. Login with:
+   Username: admin
+   Password: admin123
+
+7. After login, change URL to:
+   http://127.0.0.1:8000/admin/analytics/
+
+8. You will see buttons at the top
+
+9. Click the FIRST button:
+   "👨🏫 Students by Instructor"
+
+10. NOW YOU SEE IT!
+    - All instructors listed
+    - Students under each instructor
+    - Which courses they're taking
+    - Their progress
+
+===============================================
+
+DIRECT LINK (after login):
+http://127.0.0.1:8000/manage/instructor-students/
+
+===============================================
+
+IF YOU DON'T SEE IT:
+
+Check 1: Are you at the RIGHT URL?
+         Must be: /admin/analytics/
+         NOT just: /admin/
+
+Check 2: Is server running?
+         Terminal should show: "Starting development server"
+
+Check 3: Are you logged in as admin?
+         Username must be: admin
+
+Check 4: Do you have demo data?
+         Run: python manage.py shell < seed_complete.py
+
+===============================================
+
+WHAT IT LOOKS LIKE:
+
+You'll see instructor names like:
+- John Doe
+- Mary Wilson
+- etc.
+
+Under each instructor, you'll see:
+- Student names
+- How many courses they're taking
+- Their progress percentage
+- Buttons to see more details
+
+===============================================
+
+NEED HELP?
+Send screenshot of what you see at:
+http://127.0.0.1:8000/admin/analytics/
+
+===============================================

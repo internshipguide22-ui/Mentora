@@ -1,0 +1,201 @@
+templates\accounts\profile.html:                        <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+templates\admin\all_instructors.html:                        <a href="{% url 'instructor_details' instructor.id %}" class="btn btn-sm btn-info">View Details</a>
+templates\admin\analytics.html:            <div class="btn-group" role="group">
+templates\admin\analytics.html:                <a href="{% url 'instructor_students_view' %}" class="btn btn-primary">👨‍🏫 Students by Instructor</a>
+templates\admin\analytics.html:                <a href="{% url 'all_instructors' %}" class="btn btn-info">📚 Manage Instructors</a>
+templates\admin\analytics.html:                <a href="{% url 'all_students_progress' %}" class="btn btn-success">👥 Student Progress</a>
+templates\admin\analytics.html:                <a href="{% url 'manage_users' %}" class="btn btn-secondary">👤 Manage Users</a>
+templates\admin\analytics.html:                <a href="{% url 'manage_courses' %}" class="btn btn-warning">📖 Manage Courses</a>
+templates\admin\course_student_progress.html:    <a href="{% url 'instructor_details' course.instructor.id %}" class="btn btn-secondary mb-4">
+templates\admin\course_student_progress.html:                <a href="{% url 'student_course_details' data.enrollment.student.id course.id %}" class="view-details-btn">
+templates\admin\instructor_details.html:            <a href="{% url 'all_instructors' %}" class="btn btn-secondary mb-3">← Back to All Instructors</a>
+templates\admin\instructor_details.html:                        <a href="{% url 'course_student_progress' course.id %}" class="btn btn-sm btn-info">View Students</a>
+templates\admin\instructor_students_view.html:                <a href="{% url 'student_instructors_view' %}" class="btn btn-info">Switch to Students View</a>
+templates\admin\instructor_students_view.html:                <a href="{% url 'admin_analytics' %}" class="btn btn-secondary">Back to Analytics</a>
+templates\admin\instructor_students_view.html:                <button class="view-courses-btn" onclick="toggleCourses('student-{{ student_info.student.id }}-instructor-{{ data.instructor.id }}', this)">
+templates\admin\instructor_students_view.html:                                <a href="{% url 'student_course_details' student_info.student.id course_info.course.id %}" class="course-details-btn">View Details</a>
+templates\admin\student_course_details.html:    <a href="{% url 'course_student_progress' course.id %}" class="btn btn-secondary mb-4">
+templates\admin\student_instructors_view.html:                <a href="{% url 'instructor_students_view' %}" class="btn btn-info">Switch to Instructors View</a>
+templates\admin\student_instructors_view.html:                <a href="{% url 'admin_analytics' %}" class="btn btn-secondary">Back to Analytics</a>
+templates\admin\student_instructors_view.html:                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#instructor-{{ instructor_info.instructor.id }}-student-{{ data.student.id }}">
+templates\admin\student_instructors_view.html:                                                       class="btn btn-sm btn-info">Details</a>
+templates\analytics\dashboard.html:                    <button type="submit" class="filter-btn filter-btn-primary">Apply</button>
+templates\analytics\dashboard.html:                    <a href="{% url 'analytics_dashboard' %}" class="filter-btn filter-btn-secondary">Clear</a>
+templates\analytics\dashboard.html:        <a href="{% url 'export_analytics_csv' %}" class="export-btn export-btn-green"><i class="fas fa-download"></i> Export Analytics (Excel)</a>
+templates\analytics\dashboard.html:        <a href="{% url 'export_users_csv' %}" class="export-btn export-btn-blue"><i class="fas fa-download"></i> Export Users (Excel)</a>
+templates\analytics\dashboard.html:        <a href="{% url 'export_enrollments_csv' %}" class="export-btn export-btn-orange"><i class="fas fa-download"></i> Export Enrollments (Excel)</a>
+templates\base.html:                <a class="btn-register" href="{% url 'accounts:register' %}">Register</a>
+templates\certificates\certificate_confirm_delete.html:        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\certificates\certificate_confirm_delete.html:        <a href="{% url 'list_certificates' %}" class="btn btn-secondary">Cancel</a>
+templates\certificates\certificate_detail.html:            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+templates\certificates\certificate_detail.html:            <a href="{% url 'generate_certificate_pdf' certificate.id %}" class="btn btn-success">Download PDF</a>
+templates\certificates\certificate_form.html:        <button type="submit" class="btn btn-primary">Save Changes</button>
+templates\certificates\certificate_form.html:        <a href="{% url 'list_certificates' %}" class="btn btn-secondary">Cancel</a>
+templates\certificates\certificate_list.html:                            <div class="btn-group">
+templates\certificates\certificate_list.html:                                <a href="{% url 'view_certificate' certificate.id %}" class="btn btn-primary">View</a>
+templates\certificates\certificate_list.html:                                <a href="{% url 'edit_certificate' certificate.id %}" class="btn btn-secondary">Edit</a>
+templates\certificates\certificate_list.html:                                <a href="{% url 'delete_certificate' certificate.id %}" class="btn btn-danger">Delete</a>
+templates\certificates\view_certificate.html:                <a href="{{ certificate.file.url }}" class="btn btn-success btn-lg me-2" download>
+templates\certificates\view_certificate.html:                <button onclick="window.print()" class="btn btn-primary btn-lg me-2">
+templates\certificates\view_certificate.html:                <a href="{% url 'certificates:verify_certificate' certificate.uuid %}" class="btn btn-info btn-lg" target="_blank">
+templates\certificates\view_certificate.html:                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+templates\courses\course_detail.html:                        <a href="{{ course.syllabus.url }}" class="btn btn-outline-primary" download>
+templates\courses\course_detail.html:                        <a href="{% url 'courses:module_create' course.pk %}" class="btn btn-sm btn-primary me-2">
+templates\courses\course_detail.html:                        <a href="{% url 'courses:lesson_create' course.pk %}" class="btn btn-sm btn-success">
+templates\courses\course_detail.html:                                    <button onclick="window.location.href='{% url 'courses:lesson_update' lesson.pk %}'" class="action-btn edit-btn" title="Edit">
+templates\courses\course_detail.html:                                    <button onclick="if(confirm('Delete this lesson?')) window.location.href='{% url 'courses:lesson_delete' lesson.pk %}'" class="action-btn delete-btn" title="Delete">
+templates\courses\course_detail.html:                            <a href="{% url 'certificates:generate' enrollment.id %}" class="btn btn-success w-100 mb-2">
+templates\courses\course_detail.html:                            <a href="{% url 'courses:course_update' course.pk %}" class="btn btn-warning w-100 mb-2">
+templates\courses\course_detail.html:                            <a href="{% url 'courses:manage_students' course.pk %}" class="btn btn-primary w-100 mb-2">
+templates\courses\course_detail.html:                                <button type="submit" class="btn btn-success w-100">
+templates\courses\course_detail.html:                        <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+templates\courses\course_form.html:                        <button type="submit" class="btn btn-primary btn-block">{% if form.instance.pk %}Save Changes{% else %}Create Course{% endif %}</button>
+templates\courses\course_interest_form.html:        <button type="submit" class="btn btn-primary">Submit Interest</button>
+templates\courses\course_learn.html:                        <a href="{% url 'view_certificate' enrollment.certificate.id %}" class="btn btn-success btn-sm">View Certificate</a>
+templates\courses\course_list.html:            <a href="{% url 'courses:course_create' %}" class="btn btn-primary">Create New Course</a>
+templates\courses\course_list.html:                <button class="btn btn-primary btn-block" type="submit"><i class="fas fa-search"></i> Filter</button>
+templates\courses\course_list.html:            <a href="{% url 'courses:course_list' %}" class="btn btn-secondary btn-sm">Clear Filters</a>
+templates\courses\instructor_manage_all_students.html:        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+templates\courses\instructor_manage_all_students.html:                                <a href="{% url 'courses:manage_students' data.enrollment.course.pk %}" class="btn btn-sm btn-primary">View Details</a>
+templates\courses\lesson_form.html:                        <button type="submit" class="btn btn-primary w-100">{% if form.instance.pk %}Save Changes{% else %}Add Lesson{% endif %}</button>
+templates\courses\manage_students.html:        <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-secondary">Back to Course</a>
+templates\courses\manage_students.html:                                    <button type="submit" class="btn btn-sm {% if enrollment.is_active %}btn-warning{% else %}btn-success{% endif %}">
+templates\courses\module_form.html:                <button type="submit" class="btn btn-primary">Create Module</button>
+templates\courses\module_form.html:                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-secondary">Cancel</a>
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'admin:index' %}" class="admin-btn admin-btn-blue">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'analytics_dashboard' %}" class="admin-btn admin-btn-cyan">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_users' %}" class="admin-btn admin-btn-green">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_courses' %}" class="admin-btn admin-btn-orange">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_enrollments' %}" class="admin-btn admin-btn-gray">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_quizzes' %}" class="admin-btn admin-btn-red">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_certificates' %}" class="admin-btn admin-btn-purple">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_reviews' %}" class="admin-btn admin-btn-teal">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'manage_categories' %}" class="admin-btn admin-btn-indigo">
+templates\dashboard\admin_dashboard.html:                <a href="{% url 'instructor_students_view' %}" class="admin-btn admin-btn-purple">
+templates\dashboard\dashboard.html:                                                <a href="{% url 'course_detail' enrollment.course.id %}" class="btn btn-primary">Continue Learning</a>
+templates\dashboard\dashboard.html:                                <a href="{% url 'course_list' %}" class="btn btn-primary">Browse Courses</a>
+templates\dashboard\dashboard.html:                                                    <a href="{% url 'course_detail' enrollment.course.id %}" class="btn btn-outline-primary">Review Course</a>
+templates\dashboard\dashboard.html:                                                        <a href="{% url 'view_certificate' enrollment.certificate.id %}" class="btn btn-success">
+templates\dashboard\dashboard.html:                                                        <a href="{% url 'generate_certificate' enrollment.id %}" class="btn btn-outline-success">
+templates\dashboard\dashboard.html:                                                    <a href="{% url 'view_certificate' certificate.id %}" class="btn btn-primary">
+templates\dashboard\dashboard.html:                                                    <a href="{{ certificate.verification_url }}" target="_blank" class="btn btn-outline-secondary">
+templates\dashboard\instructor_dashboard.html:        <a href="{% url 'courses:instructor_manage_all_students' %}" class="btn btn-primary btn-lg w-100 mb-2">
+templates\dashboard\instructor_dashboard.html:        <a href="{% url 'quizzes:instructor_assessments' %}" class="btn btn-success btn-lg w-100 mb-2">
+templates\dashboard\instructor_dashboard.html:        <a href="{% url 'lessons:view_doubts' %}" class="btn btn-warning btn-lg w-100">
+templates\dashboard\instructor_dashboard.html:                                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
+templates\dashboard\student_dashboard.html:        <a href="{% url 'lessons:my_doubts' %}" class="btn btn-info btn-lg w-100">
+templates\dashboard\student_dashboard.html:            <a href="{% url 'courses:course_list' %}" class="btn btn-primary btn-sm">
+templates\dashboard\student_dashboard.html:                            <a href="{% url 'certificates:generate' enrollment.id %}" class="btn btn-sm btn-success w-100 mb-2">
+templates\dashboard\student_dashboard.html:                            <a href="{% url 'courses:course_detail' enrollment.course.pk %}" class="btn btn-sm btn-outline-primary w-100">
+templates\dashboard\student_dashboard.html:                            <a href="{% url 'courses:course_detail' enrollment.course.pk %}" class="btn btn-sm btn-primary w-100">
+templates\dashboard\student_dashboard.html:                <a href="{% url 'courses:course_list' %}" class="btn btn-primary">
+templates\dashboard\student_dashboard.html:                        <a href="{{ certificate.file.url }}" class="btn btn-sm btn-success" download>
+templates\home.html:                <a href="{% url 'courses:course_list' %}" class="btn btn-primary btn-lg">Browse Courses</a>
+templates\home.html:                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg">Sign Up</a>
+templates\home.html:                        <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline-primary btn-sm">View Course</a>
+templates\home.html:            <button id="toggleCoursesBtn" class="btn btn-primary btn-lg" onclick="toggleCourses()">
+templates\lessons\instructor_doubts.html:                    <a href="{% url 'lessons:respond_doubt' doubt.pk %}" class="respond-btn">
+templates\lessons\lesson_confirm_delete.html:    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\lessons\lesson_confirm_delete.html:    <a href="{% url 'courses:course_detail' lesson.module.course.id %}" class="btn btn-secondary">Cancel</a>
+templates\lessons\lesson_detail.html:                        <a href="{{ lesson.attachment.url }}" class="btn btn-outline-primary" download>
+templates\lessons\lesson_detail.html:                            <a href="{% url 'create_quiz_for_lesson' lesson.id %}" class="btn btn-sm btn-success">
+templates\lessons\lesson_detail.html:                        <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Question</button>
+templates\lessons\lesson_detail.html:                        <button type="submit" class="btn btn-success">
+templates\lessons\lesson_detail.html:                    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-outline-primary w-100">
+templates\lessons\lesson_form.html:                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+templates\lessons\lesson_form.html:                            <button type="submit" class="btn btn-success">
+templates\lessons\respond_doubt.html:                <button type="submit" class="btn btn-primary">Submit Response</button>
+templates\lessons\respond_doubt.html:                <a href="{% url 'lessons:view_doubts' %}" class="btn btn-secondary">Cancel</a>
+templates\management\add_question.html:                    <button type="submit" class="btn btn-primary">Add Question</button>
+templates\management\add_question.html:                    <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-secondary">Cancel</a>
+templates\management\categories.html:        <a href="{% url 'create_category' %}" class="btn btn-primary">+ Create Category</a>
+templates\management\categories.html:                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+templates\management\categories.html:                            <a href="{% url 'edit_category' category.id %}" class="btn btn-sm btn-warning">Edit</a>
+templates\management\categories.html:                            <a href="{% url 'delete_category' category.id %}" class="btn btn-sm btn-danger">Delete</a>
+templates\management\certificates.html:                    <button type="submit" class="btn btn-primary w-100">Search</button>
+templates\management\certificates.html:                    <a href="{% url 'manage_certificates' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\certificates.html:                            <a href="{% url 'certificates:view_certificate_uuid' certificate.uuid %}" class="btn btn-sm btn-info" target="_blank">View</a>
+templates\management\certificates.html:                            <a href="{% url 'regenerate_certificate' certificate.id %}" class="btn btn-sm btn-warning">Regenerate</a>
+templates\management\certificates.html:                            <a href="{% url 'revoke_certificate' certificate.id %}" class="btn btn-sm btn-danger">Revoke</a>
+templates\management\courses.html:                    <button type="submit" class="btn btn-primary w-100">Search</button>
+templates\management\courses.html:                    <a href="{% url 'manage_courses' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\courses.html:                            <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-info">View</a>
+templates\management\courses.html:                            <a href="{% url 'courses:course_update' course.id %}" class="btn btn-sm btn-warning">Edit</a>
+templates\management\courses.html:                            <a href="{% url 'delete_course' course.id %}" class="btn btn-sm btn-danger">Delete</a>
+templates\management\create_category.html:                <button type="submit" class="btn btn-primary">Create Category</button>
+templates\management\create_category.html:                <a href="{% url 'manage_categories' %}" class="btn btn-secondary">Cancel</a>
+templates\management\create_quiz.html:                <button type="submit" class="btn btn-primary">Create Quiz</button>
+templates\management\create_quiz.html:                <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-secondary">Cancel</a>
+templates\management\create_user.html:                <a href="{% url 'manage_users' %}" class="btn btn-secondary">
+templates\management\create_user.html:                <button type="submit" class="btn btn-primary">
+templates\management\delete_category.html:                <button type="submit" class="btn btn-danger">Delete</button>
+templates\management\delete_category.html:                <a href="{% url 'manage_categories' %}" class="btn btn-secondary">Cancel</a>
+templates\management\delete_course.html:                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\management\delete_course.html:                    <a href="{% url 'manage_courses' %}" class="btn btn-secondary">Cancel</a>
+templates\management\delete_quiz.html:                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\management\delete_quiz.html:                    <a href="{% url 'manage_quizzes' %}" class="btn btn-secondary">Cancel</a>
+templates\management\delete_review.html:                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\management\delete_review.html:                    <a href="{% url 'manage_reviews' %}" class="btn btn-secondary">Cancel</a>
+templates\management\delete_user.html:                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\management\delete_user.html:                    <a href="{% url 'manage_users' %}" class="btn btn-secondary">Cancel</a>
+templates\management\edit_category.html:                <button type="submit" class="btn btn-primary">Update Category</button>
+templates\management\edit_category.html:                <a href="{% url 'manage_categories' %}" class="btn btn-secondary">Cancel</a>
+templates\management\edit_quiz.html:                            <button type="submit" class="btn btn-primary">Save Changes</button>
+templates\management\edit_quiz.html:                            <a href="{% url 'manage_quizzes' %}" class="btn btn-secondary">Back</a>
+templates\management\edit_quiz.html:                    <a href="{% url 'add_question' quiz.id %}" class="btn btn-success btn-sm">Add Question</a>
+templates\management\edit_quiz.html:                            <a href="{% url 'delete_question' question.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this question?')">Delete</a>
+templates\management\edit_user.html:                    <button type="submit" class="btn btn-primary">Save Changes</button>
+templates\management\edit_user.html:                    <a href="{% url 'manage_users' %}" class="btn btn-secondary">Cancel</a>
+templates\management\enrollments.html:                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+templates\management\enrollments.html:                    <a href="{% url 'manage_enrollments' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\enrollments.html:                            <a href="{% url 'toggle_enrollment' enrollment.id %}" class="btn btn-sm btn-warning">
+templates\management\enrollments.html:                            <a href="{% url 'mark_complete' enrollment.id %}" class="btn btn-sm btn-success">Complete</a>
+templates\management\quizzes.html:                    <button type="submit" class="btn btn-primary w-100">Search</button>
+templates\management\quizzes.html:                    <a href="{% url 'manage_quizzes' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\quizzes.html:                            <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-sm btn-warning">Edit</a>
+templates\management\quizzes.html:                            <a href="{% url 'delete_quiz' quiz.id %}" class="btn btn-sm btn-danger">Delete</a>
+templates\management\reviews.html:                    <button type="submit" class="btn btn-primary w-100">Search</button>
+templates\management\reviews.html:                    <a href="{% url 'manage_reviews' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\reviews.html:                            <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-danger">Delete</a>
+templates\management\revoke_certificate.html:                    <button type="submit" class="btn btn-danger">Yes, Revoke</button>
+templates\management\revoke_certificate.html:                    <a href="{% url 'manage_certificates' %}" class="btn btn-secondary">Cancel</a>
+templates\management\users.html:        <a href="{% url 'create_user' %}" class="btn btn-success">
+templates\management\users.html:                    <button type="submit" class="btn btn-primary w-100">Search</button>
+templates\management\users.html:                    <a href="{% url 'manage_users' %}" class="btn btn-secondary w-100">Clear</a>
+templates\management\users.html:                            <a href="{% url 'edit_user' user_item.id %}" class="btn btn-sm btn-warning">Edit</a>
+templates\management\users.html:                            <a href="{% url 'delete_user' user_item.id %}" class="btn btn-sm btn-danger">Delete</a>
+templates\quizzes\choice_confirm_delete.html:                            <a href="{% url 'quizzes:quiz_detail' choice.question.quiz.pk %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\choice_confirm_delete.html:                            <button type="submit" class="btn btn-danger">Delete</button>
+templates\quizzes\choice_form.html:                            <a href="{% url 'quizzes:quiz_detail' choice.question.quiz.pk|default:question.quiz.pk %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\choice_form.html:                            <button type="submit" class="btn btn-primary">Save Choice</button>
+templates\quizzes\instructor_assessments.html:                <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="quiz-action-btn view">
+templates\quizzes\instructor_assessments.html:                <a href="{% url 'quizzes:edit_quiz' quiz.pk %}" class="quiz-action-btn edit">
+templates\quizzes\instructor_assessments.html:                <a href="{% url 'quizzes:delete_quiz' quiz.pk %}" class="quiz-action-btn delete">
+templates\quizzes\question_confirm_delete.html:        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\quizzes\question_confirm_delete.html:        <a href="{% url 'edit_quiz' question.quiz.id %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\question_form.html:                            <a href="{% url 'quizzes:quiz_detail' question.quiz.pk|default:quiz.pk %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\question_form.html:                            <button type="submit" class="btn btn-primary">Save Question</button>
+templates\quizzes\quiz_confirm_delete.html:        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+templates\quizzes\quiz_confirm_delete.html:        <a href="{% url 'course_detail' quiz.course.id %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\quiz_detail.html:                            <a href="{% url 'quizzes:create_question' quiz.pk %}" class="btn btn-success btn-sm">
+templates\quizzes\quiz_detail.html:                                        <button onclick="window.location.href='{% url 'quizzes:edit_question' question.pk %}'" class="action-btn edit-btn" title="Edit">
+templates\quizzes\quiz_detail.html:                                        <button onclick="if(confirm('Delete this question?')) window.location.href='{% url 'quizzes:delete_question' question.pk %}'" class="action-btn delete-btn" title="Delete">
+templates\quizzes\quiz_detail.html:                                            <button onclick="window.location.href='{% url 'quizzes:edit_choice' choice.pk %}'" class="action-btn-sm edit-btn">
+templates\quizzes\quiz_detail.html:                                            <button onclick="if(confirm('Delete?')) window.location.href='{% url 'quizzes:delete_choice' choice.pk %}'" class="action-btn-sm delete-btn">
+templates\quizzes\quiz_detail.html:                                    <button onclick="window.location.href='{% url 'quizzes:create_choice' question.pk %}'" class="add-choice-btn">
+templates\quizzes\quiz_detail.html:                                        <a href="{% url 'quizzes:quiz_result' attempt.pk %}" class="btn btn-sm btn-info">View Result</a>
+templates\quizzes\quiz_detail.html:                    <a href="{% url 'quizzes:take_quiz' quiz.pk %}" class="btn btn-primary">
+templates\quizzes\quiz_detail.html:                    <a href="{% url 'courses:lesson_detail' quiz.lesson.pk %}" class="btn btn-outline-primary w-100">
+templates\quizzes\quiz_form.html:                            <a href="{% if quiz %}{% url 'quizzes:quiz_detail' quiz.pk %}{% else %}{% url 'accounts:dashboard' %}{% endif %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\quiz_form.html:                            <button type="submit" class="btn btn-primary">Save Quiz</button>
+templates\quizzes\quiz_result.html:                <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="btn btn-primary">Back to Quiz</a>
+templates\quizzes\quiz_result.html:                <a href="{% url 'courses:lesson_detail' quiz.lesson.pk %}" class="btn btn-secondary">Back to Lesson</a>
+templates\quizzes\take_quiz.html:                    <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="btn btn-secondary">Cancel</a>
+templates\quizzes\take_quiz.html:                    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+templates\registration\login.html:                            <button type="submit" class="btn btn-primary btn-block">Login</button>
+templates\registration\password_reset.html:                        <button type="submit" class="btn btn-primary btn-block">Send Reset Link</button>
+templates\registration\password_reset_complete.html:                    <a href="{% url 'accounts:login' %}" class="btn btn-primary">Login Now</a>
+templates\registration\password_reset_confirm.html:                        <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
+templates\registration\password_reset_confirm.html:                    <a href="{% url 'accounts:password_reset' %}" class="btn btn-primary">Request New Link</a>
+templates\registration\password_reset_done.html:                    <a href="{% url 'accounts:login' %}" class="btn btn-primary">Back to Login</a>
+templates\registration\register.html:                            <button type="submit" class="btn btn-primary btn-block mt-3">Register</button>

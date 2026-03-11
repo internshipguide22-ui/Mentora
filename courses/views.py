@@ -1,0 +1,401 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.db import models
+
+from .models import Course, Lesson, Enrollment, Module, Category
+from .forms import CourseForm, LessonForm
+from accounts.decorators import student_required, instructor_required
+
+# A mixin to ensure that the user is an instructor
+class InstructorRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_instructor
+
+# A mixin to ensure that the user is an admin
+class AdminRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.is_admin
+
+# A mixin to ensure that the instructor owns the course or user is admin
+class CourseOwnerRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        course = get_object_or_404(Course, pk=self.kwargs['pk'])
+        return self.request.user == course.instructor or self.request.user.is_admin or self.request.user.is_admin
+
+# --- Course Views ---
+
+class CourseListView(ListView):
+    model = Course
+    template_name = 'courses/course_list.html'
+    context_object_name = 'courses'
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        category_id = self.request.GET.get('category')
+        if query:
+            queryset = queryset.filter(
+                models.Q(title__icontains=query) |
+                models.Q(description__icontains=query) |
+                models.Q(instructor__username__icontains=query)
+            )
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')
+        context['categories'] = Category.objects.all()
+        context['selected_category'] = self.request.GET.get('category', '')
+        return context
+
+class CourseDetailView(DetailView):
+    model = Course
+    template_name = 'courses/course_detail.html'
+    context_object_name = 'course'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            enrollment = Enrollment.objects.filter(
+                course=self.object, student=self.request.user, is_active=True
+            ).first()
+            context['is_enrolled'] = enrollment is not None
+            context['enrollment'] = enrollment
+            
+            # Get completed lessons and quizzes for tick marks
+            if enrollment and self.request.user.is_student:
+                from lessons.models import LessonCompletion
+                from quizzes.models import QuizAttempt
+                context['completed_lessons'] = LessonCompletion.objects.filter(
+                    student=self.request.user
+                ).values_list('lesson_id', flat=True)
+                context['completed_quizzes'] = QuizAttempt.objects.filter(
+                    student=self.request.user, completed_at__isnull=False
+                ).values_list('quiz_id', flat=True)
+        else:
+            context['is_enrolled'] = False
+            context['enrollment'] = None
+        
+        # Reviews
+        from reviews.models import Review
+        reviews = self.object.reviews.all()
+        context['reviews'] = reviews
+        context['avg_rating'] = reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0
+        if self.request.user.is_authenticated:
+            context['user_review'] = reviews.filter(student=self.request.user).first()
+        return context
+
+class CourseCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
+    model = Course
+    form_class = CourseForm
+    template_name = 'courses/course_form.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Automatically create a default module for the new course
+        Module.objects.create(
+            course=self.object,
+            title="Module 1",
+            description="Default module for the course",
+            order=1
+        )
+        
+        messages.success(self.request, "Course created successfully with a default module!")
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('courses:course_detail', kwargs={'pk': self.object.pk})
+
+class CourseUpdateView(LoginRequiredMixin, CourseOwnerRequiredMixin, UpdateView):
+    model = Course
+    form_class = CourseForm
+    template_name = 'courses/course_form.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, "Course updated successfully!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('courses:course_detail', kwargs={'pk': self.object.pk})
+
+# --- Lesson Views ---
+
+class LessonCreateView(LoginRequiredMixin, CreateView):
+    model = Lesson
+    form_class = LessonForm
+    template_name = 'lessons/lesson_form.html'
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        course = get_object_or_404(Course, pk=self.kwargs['course_pk'])
+        kwargs['course'] = course
+        return kwargs
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = get_object_or_404(Course, pk=self.kwargs['course_pk'])
+        context['course'] = course
+        context['has_modules'] = course.modules.exists()
+        return context
+
+    def form_valid(self, form):
+        course = get_object_or_404(Course, pk=self.kwargs['course_pk'])
+        if not (self.request.user == course.instructor or self.request.user.is_admin):
+            messages.error(self.request, "You are not authorized to add lessons to this course.")
+            return redirect('courses:course_detail', pk=course.pk)
+        
+        if not course.modules.exists():
+            messages.error(self.request, "Please create a module first before adding lessons.")
+            return redirect('courses:module_create', course_pk=course.pk)
+        
+        messages.success(self.request, "Lesson created successfully!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('courses:course_detail', kwargs={'pk': self.kwargs['course_pk']})
+
+class LessonUpdateView(LoginRequiredMixin, UpdateView):
+    model = Lesson
+    form_class = LessonForm
+    template_name = 'lessons/lesson_form.html'
+
+    def get_queryset(self):
+        if self.request.user.is_admin:
+            return super().get_queryset()
+        return super().get_queryset().filter(module__course__instructor=self.request.user)
+
+    def form_valid(self, form):
+        messages.success(self.request, "Lesson updated successfully!")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('courses:course_detail', kwargs={'pk': self.object.module.course.pk})
+
+class LessonDeleteView(LoginRequiredMixin, DeleteView):
+    model = Lesson
+    template_name = 'lessons/lesson_confirm_delete.html'
+
+    def get_queryset(self):
+        if self.request.user.is_admin:
+            return super().get_queryset()
+        return super().get_queryset().filter(module__course__instructor=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, "Lesson deleted successfully!")
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        from django.urls import reverse
+        return reverse('courses:course_detail', kwargs={'pk': self.object.module.course.pk})
+
+@login_required
+@student_required
+def enroll_course(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+    enrollment, created = Enrollment.objects.get_or_create(
+        student=request.user,
+        course=course
+    )
+    if created:
+        # Send enrollment confirmation email
+        from django.core.mail import send_mail
+        from django.conf import settings
+        
+        subject = f'Enrollment Confirmation - {course.title}'
+        message = f'''Dear {request.user.get_full_name() or request.user.username},
+
+Congratulations! You have successfully enrolled in "{course.title}".
+
+Course Details:
+- Title: {course.title}
+- Instructor: {course.instructor.get_full_name() or course.instructor.username}
+- Enrolled on: {enrollment.enrollment_date.strftime("%B %d, %Y")}
+
+You can now access all course materials, lessons, and quizzes.
+
+Start learning: {settings.SITE_URL}/courses/{course.pk}/
+
+Best regards,
+LMS Team
+'''
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@lms.com',
+                [request.user.email],
+                fail_silently=True,
+            )
+        except Exception as e:
+            pass  # Don't fail enrollment if email fails
+        
+        messages.success(request, f"You have successfully enrolled in {course.title}! A confirmation email has been sent.")
+    else:
+        messages.info(request, f"You are already enrolled in {course.title}.")
+    return redirect('courses:course_detail', pk=course.pk)
+
+@login_required
+def lesson_detail(request, pk):
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course = lesson.module.course
+    
+    # Check if user is enrolled or is the instructor
+    is_enrolled = Enrollment.objects.filter(student=request.user, course=course, is_active=True).exists()
+    is_instructor = request.user == course.instructor
+    
+    if not (is_enrolled or is_instructor or request.user.is_admin):
+        messages.error(request, "You must be enrolled in this course to view lessons.")
+        return redirect('courses:course_detail', pk=course.pk)
+    
+    # Get lesson completion status
+    from lessons.models import LessonCompletion
+    from quizzes.models import QuizAttempt
+    is_completed = LessonCompletion.objects.filter(student=request.user, lesson=lesson).exists()
+    
+    # Check if lesson has quizzes and if they're completed
+    lesson_quizzes = lesson.quizzes.all()
+    quizzes_completed = True
+    if lesson_quizzes.exists():
+        for quiz in lesson_quizzes:
+            if not QuizAttempt.objects.filter(student=request.user, quiz=quiz, completed_at__isnull=False).exists():
+                quizzes_completed = False
+                break
+    
+    context = {
+        'lesson': lesson,
+        'course': course,
+        'is_completed': is_completed,
+        'quizzes_completed': quizzes_completed,
+        'has_quizzes': lesson_quizzes.exists(),
+    }
+    return render(request, 'lessons/lesson_detail.html', context)
+
+@login_required
+@student_required
+def mark_lesson_complete(request, pk):
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course = lesson.module.course
+    
+    # Verify enrollment
+    enrollment = get_object_or_404(Enrollment, student=request.user, course=course, is_active=True)
+    
+    from lessons.models import LessonCompletion
+    completion, created = LessonCompletion.objects.get_or_create(
+        student=request.user,
+        lesson=lesson
+    )
+    
+    if created:
+        messages.success(request, f"Lesson '{lesson.title}' marked as complete!")
+        enrollment.update_progress()
+    else:
+        messages.info(request, "Lesson already marked as complete.")
+    
+    return redirect('courses:lesson_detail', pk=lesson.pk)
+
+@login_required
+@instructor_required
+def manage_course_students(request, pk):
+    course = get_object_or_404(Course, pk=pk, instructor=request.user)
+    enrollments = Enrollment.objects.filter(course=course).select_related('student').order_by('-enrollment_date')
+    
+    for enrollment in enrollments:
+        enrollment.update_progress()
+    
+    context = {
+        'course': course,
+        'enrollments': enrollments,
+    }
+    return render(request, 'courses/manage_students.html', context)
+
+@login_required
+@instructor_required
+def toggle_student_enrollment(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, pk=enrollment_id, course__instructor=request.user)
+    enrollment.is_active = not enrollment.is_active
+    enrollment.save()
+    status = "activated" if enrollment.is_active else "deactivated"
+    messages.success(request, f"Student enrollment {status} successfully!")
+    return redirect('courses:manage_students', pk=enrollment.course.pk)
+
+
+@login_required
+def create_module(request, course_pk):
+    course = get_object_or_404(Course, pk=course_pk)
+    
+    # Check if user is instructor of this course or admin
+    if not (request.user == course.instructor or request.user.is_admin):
+        messages.error(request, "You don't have permission to add modules to this course.")
+        return redirect('courses:course_detail', pk=course.pk)
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description', '')
+        order = Module.objects.filter(course=course).count() + 1
+        
+        Module.objects.create(
+            course=course,
+            title=title,
+            description=description,
+            order=order
+        )
+        messages.success(request, f"Module '{title}' created successfully!")
+        return redirect('courses:course_detail', pk=course.pk)
+    
+    context = {
+        'course': course,
+        'module_count': Module.objects.filter(course=course).count()
+    }
+    return render(request, 'courses/module_form.html', context)
+
+@login_required
+@instructor_required
+def instructor_manage_all_students(request):
+    courses = Course.objects.filter(instructor=request.user)
+    enrollments = Enrollment.objects.filter(course__in=courses).select_related('student', 'course').order_by('-enrollment_date')
+    
+    from lessons.models import LessonCompletion
+    from quizzes.models import QuizAttempt
+    from certificates.models import Certificate
+    
+    student_data = []
+    for enrollment in enrollments:
+        enrollment.update_progress()
+        
+        completed_lessons = LessonCompletion.objects.filter(
+            student=enrollment.student,
+            lesson__module__course=enrollment.course
+        ).count()
+        
+        total_lessons = Lesson.objects.filter(module__course=enrollment.course).count()
+        
+        quiz_attempts = QuizAttempt.objects.filter(
+            student=enrollment.student,
+            quiz__lesson__module__course=enrollment.course
+        ).count()
+        
+        certificate = Certificate.objects.filter(enrollment=enrollment).first()
+        
+        student_data.append({
+            'enrollment': enrollment,
+            'completed_lessons': completed_lessons,
+            'total_lessons': total_lessons,
+            'quiz_attempts': quiz_attempts,
+            'certificate': certificate,
+        })
+    
+    context = {
+        'student_data': student_data,
+        'total_students': enrollments.count(),
+    }
+    return render(request, 'courses/instructor_manage_all_students.html', context)

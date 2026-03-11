@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}My Questions - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="page-header">
+        <h2><i class="fas fa-comments"></i> My Questions & Answers</h2>
+        <div class="doubt-stats">
+            <span class="stat-badge answered"><i class="fas fa-check-circle"></i> {{ answered_count }} Answered</span>
+            <span class="stat-badge pending"><i class="fas fa-clock"></i> {{ pending_count }} Pending</span>
+        </div>
+    </div>
+    
+    {% if doubts %}
+    <div class="doubts-container">
+        {% for doubt in doubts %}
+        <div class="doubt-card {% if not doubt.responses.all %}pending{% endif %}">
+            <div class="doubt-header">
+                <div class="doubt-info">
+                    <h5 class="lesson-title">{{ doubt.lesson.title }}</h5>
+                    <p class="course-name"><i class="fas fa-book"></i> {{ doubt.lesson.module.course.title }}</p>
+                </div>
+                <div class="doubt-status">
+                    {% if doubt.responses.all %}
+                        <span class="status-badge answered"><i class="fas fa-check-circle"></i> Answered</span>
+                    {% else %}
+                        <span class="status-badge waiting"><i class="fas fa-hourglass-half"></i> Waiting</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="doubt-body">
+                <div class="question-info">
+                    <i class="fas fa-calendar"></i>
+                    <span>Asked on {{ doubt.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+                
+                <div class="question-box">
+                    <strong>Your Question:</strong>
+                    <p>{{ doubt.question }}</p>
+                </div>
+                
+                {% if doubt.responses.all %}
+                <div class="responses-section">
+                    <h6><i class="fas fa-reply"></i> Instructor Response</h6>
+                    {% for response in doubt.responses.all %}
+                    <div class="response-item">
+                        <div class="response-header">
+                            <strong><i class="fas fa-user-tie"></i> {{ response.instructor.get_full_name|default:response.instructor.username }}</strong>
+                            <span class="response-date">{{ response.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <p class="response-text">{{ response.response }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="waiting-message">
+                    <i class="fas fa-hourglass-half"></i>
+                    <p>Your instructor will respond soon. You'll see the answer here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-comments"></i>
+        <p>You haven't asked any questions yet.</p>
+        <small>Ask questions from lesson pages to get help from your instructor</small>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Create User - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="form-container">
+        <div class="form-header">
+            <h2><i class="fas fa-user-plus"></i> Create New User</h2>
+        </div>
+        
+        <form method="post" class="modern-form">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username *</label>
+                    <input type="text" name="username" id="username" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">Password *</label>
+                    <input type="password" name="password" id="password" class="form-control" required minlength="6">
+                    <small class="form-hint">Minimum 6 characters</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="user_type" class="form-label">User Type *</label>
+                    <select name="user_type" id="user_type" class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option value="student">Student</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'manage_users' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Create User
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

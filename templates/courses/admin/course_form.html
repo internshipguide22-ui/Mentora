@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if form.instance.pk %}
+    Edit Course
+  {% else %}
+    Create Course
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1>
+    {% if form.instance.pk %}
+      Edit Course: {{ form.instance.title }}
+    {% else %}
+      Create New Course
+    {% endif %}
+  </h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+  <p><a href="{% url 'courses_admin:course_list' %}">Back to Course List</a></p>
+{% endblock %}

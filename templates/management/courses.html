@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Courses{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Manage Courses</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" placeholder="Search courses..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'manage_courses' %}" class="btn btn-secondary w-100">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Instructor</th>
+                        <th>Enrollments</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.instructor.username }}</td>
+                        <td>
+                            <span class="badge badge-success">{{ course.student_count }} Students</span>
+                        </td>
+                        <td>{{ course.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-info">View</a>
+                            <a href="{% url 'courses:course_update' course.id %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'delete_course' course.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

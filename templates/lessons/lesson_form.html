@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if lesson %}Edit Lesson{% else %}Create Lesson{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{% if lesson %}Edit Lesson{% else %}Create New Lesson{% endif %}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Lesson Title *</label>
+                            {{ form.title|add_class:"form-control" }}
+                            {% if form.title.errors %}
+                            <div class="text-danger">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Short Description</label>
+                            {{ form.description|add_class:"form-control" }}
+                            <small class="text-muted">Brief overview of the lesson</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">Lesson Content</label>
+                            {{ form.content|add_class:"form-control" }}
+                            <small class="text-muted">Main text content for the lesson</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.video_file.id_for_label }}" class="form-label">
+                                <i class="fas fa-video"></i> Video File (Main Content) *
+                            </label>
+                            {{ form.video_file|add_class:"form-control" }}
+                            <small class="text-muted">{{ form.video_file.help_text }}</small>
+                            {% if lesson and lesson.video_file %}
+                            <div class="mt-2">
+                                <small class="text-success">
+                                    Current video: <a href="{{ lesson.video_file.url }}" target="_blank">{{ lesson.video_file.name }}</a>
+                                </small>
+                            </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <small class="text-warning">
+                                    <strong>Recommended:</strong> MP4 format, max 100MB
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.video_url.id_for_label }}" class="form-label">
+                                <i class="fas fa-link"></i> Reference Video URL (Optional)
+                            </label>
+                            {{ form.video_url|add_class:"form-control" }}
+                            <small class="text-muted">{{ form.video_url.help_text }}</small>
+                            <div class="mt-2">
+                                <small class="text-info">
+                                    <strong>Examples:</strong><br>
+                                    • YouTube: https://www.youtube.com/watch?v=VIDEO_ID<br>
+                                    • Vimeo: https://vimeo.com/VIDEO_ID
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.attachment.id_for_label }}" class="form-label">
+                                <i class="fas fa-file"></i> Attachment (PDF, Documents, Images)
+                            </label>
+                            {{ form.attachment|add_class:"form-control" }}
+                            <small class="text-muted">{{ form.attachment.help_text }}</small>
+                            {% if lesson and lesson.attachment %}
+                            <div class="mt-2">
+                                <small class="text-success">
+                                    Current file: <a href="{{ lesson.attachment.url }}" target="_blank">{{ lesson.attachment.name }}</a>
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.module.id_for_label }}" class="form-label">Module *</label>
+                            {{ form.module|add_class:"form-control" }}
+                            {% if form.module.errors %}
+                            <div class="text-danger">{{ form.module.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.order.id_for_label }}" class="form-label">Order</label>
+                            {{ form.order|add_class:"form-control" }}
+                            <small class="text-muted">Lesson display order (0 = first)</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save Lesson
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Adding Assessments/Quizzes</h5>
+                </div>
+                <div class="card-body">
+                    <p>After creating this lesson, you can add quizzes/assessments:</p>
+                    <ol>
+                        <li>Save this lesson first</li>
+                        <li>Go to your Dashboard</li>
+                        <li>Click "Create Quiz" and select this lesson</li>
+                        <li>Add questions (Multiple Choice, True/False, Short Answer)</li>
+                    </ol>
+                    <p class="mb-0"><strong>Note:</strong> Students must complete all quizzes before marking the lesson as complete.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Lessons for {{ module.title }}
+{% endblock %}
+
+{% block content %}
+  <h1>Lessons for {{ module.title }}</h1>
+  <div class="module-content">
+    {% for lesson in module.lessons.all %}
+      <div class="lesson-item">
+        <h2>{{ lesson.title }}</h2>
+        <p>{{ lesson.description }}</p>
+        <a href="{% url 'courses:instructor_lesson_edit' course.pk module.pk lesson.pk %}">Edit</a>
+        <a href="{% url 'courses:instructor_lesson_delete' course.pk module.pk lesson.pk %}">Delete</a>
+      </div>
+    {% empty %}
+      <p>There are no lessons for this module yet.</p>
+    {% endfor %}
+  </div>
+  <p>
+    <a href="{% url 'courses:instructor_lesson_create' course.pk module.pk %}">Create new lesson</a>
+  </p>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - Learn{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">{{ course.title }}</h1>
+    <p class="lead">Welcome to your course, {{ user.get_full_name }}!</p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    Course Overview
+                </div>
+                <div class="card-body">
+                    <p>{{ course.description }}</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    Course Content
+                </div>
+                <div class="card-body">
+                    {% for module in course.modules.all %}
+                        <h3 class="mt-4">{{ module.title }}</h3>
+                        <ul class="list-group mb-3">
+                            {% for lesson in module.lessons.all %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-{{ lesson.id in completed_lessons|array_to_list ? 'check-circle text-success' : 'circle text-muted' }} me-2"></i>
+                                        <a href="{% url 'lesson_detail' lesson.id %}">{{ lesson.title }}</a>
+                                    </div>
+                                    {% if lesson.id in completed_lessons|array_to_list %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% empty %}
+                        <p>No modules or lessons available yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    Your Progress
+                </div>
+                <div class="card-body">
+                    <p>Completion: {{ enrollment.progress|floatformat:2 }}%</p>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: {{ enrollment.progress }}%;" aria-valuenow="{{ enrollment.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% if enrollment.completed %}
+                        <p class="text-success">You have completed this course!</p>
+                        <a href="{% url 'view_certificate' enrollment.certificate.id %}" class="btn btn-success btn-sm">View Certificate</a>
+                    {% else %}
+                        <p class="text-muted">Keep going!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ lesson.title }}</h1>
+    <p>{{ lesson.description }}</p>
+    <!-- Removed lesson.content as it's no longer a field in the Lesson model -->
+</div>
+{% endblock %}

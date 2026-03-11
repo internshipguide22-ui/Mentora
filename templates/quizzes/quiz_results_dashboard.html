@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Results - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Quiz Results: {{ quiz.title }}</h1>
+    
+    <div class="mb-4">
+        <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="btn btn-secondary">Back to Quiz</a>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="grid grid-3 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h3>{{ total_attempts }}</h3>
+                <p class="text-muted">Total Attempts</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h3>{{ passed_attempts }}</h3>
+                <p class="text-muted">Passed</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                <h3>{{ avg_score|floatformat:1 }}%</h3>
+                <p class="text-muted">Average Score</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <strong>Pass Rate:</strong> {{ pass_rate|floatformat:1 }}%
+                </div>
+                <div>
+                    <strong>Passing Score:</strong> {{ quiz.passing_score }}%
+                </div>
+                <div>
+                    <strong>Max Attempts:</strong> {{ quiz.max_attempts }}
+                </div>
+            </div>
+            <div class="progress" style="height: 25px;">
+                <div class="progress-bar bg-success" style="width: {{ pass_rate }}%;">
+                    {{ passed_attempts }} Passed
+                </div>
+                <div class="progress-bar bg-danger" style="width: {{ 100|add:pass_rate|floatformat:0|add:'-100' }}%;">
+                    {{ failed_attempts }} Failed
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Student Results -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Student Results</h5>
+        </div>
+        <div class="card-body">
+            {% if student_results %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Attempts</th>
+                            <th>Best Score</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student, data in student_results.items %}
+                        <tr>
+                            <td>{{ student.get_full_name|default:student.username }}</td>
+                            <td>{{ data.total_attempts }} / {{ quiz.max_attempts }}</td>
+                            <td>
+                                <strong>{{ data.best_score|floatformat:1 }}%</strong>
+                            </td>
+                            <td>
+                                {% if data.passed %}
+                                <span class="badge badge-success">Passed</span>
+                                {% else %}
+                                <span class="badge badge-danger">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    {% for attempt in data.attempts %}
+                                    <a href="{% url 'quizzes:quiz_result' attempt.pk %}" class="btn btn-info btn-sm" title="Attempt #{{ attempt.attempt_number }}">
+                                        #{{ attempt.attempt_number }}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center">No attempts yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

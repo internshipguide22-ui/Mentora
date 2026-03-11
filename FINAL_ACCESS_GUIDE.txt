@@ -1,0 +1,57 @@
+========================================
+   ACCESS STUDENT-INSTRUCTOR VIEW
+========================================
+
+STEP 1: Start Server
+--------------------
+python manage.py runserver
+
+
+STEP 2: Login as Admin
+-----------------------
+Go to: http://127.0.0.1:8000/accounts/login/
+Username: admin
+Password: admin123
+
+
+STEP 3: Go to Dashboard
+------------------------
+After login, you'll be redirected to:
+http://127.0.0.1:8000/accounts/dashboard/
+
+OR click on your username → Dashboard
+
+
+STEP 4: Scroll Down
+--------------------
+You'll see a section called:
+"Student-Instructor Management"
+
+With 4 buttons:
+┌─────────────────────────────────────┐
+│ Student-Instructor Management       │
+├─────────────────────────────────────┤
+│ [Students by Instructor]            │ ← CLICK THIS!
+│ [Instructors by Student]            │
+│ [All Instructors]                   │
+│ [Student Progress]                  │
+└─────────────────────────────────────┘
+
+
+STEP 5: Click "Students by Instructor"
+---------------------------------------
+This shows:
+- Which students are learning under each instructor
+- What courses they're taking
+- Their progress
+
+
+========================================
+           THAT'S IT!
+========================================
+
+Login → Dashboard → Scroll Down → Click Button
+
+You'll see all students grouped by their instructors!
+
+========================================

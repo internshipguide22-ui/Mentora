@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Certificates{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Manage Certificates</h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" placeholder="Search by student or course..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'manage_certificates' %}" class="btn btn-secondary w-100">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Issued Date</th>
+                        <th>Certificate ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for certificate in certificates %}
+                    <tr>
+                        <td>{{ certificate.enrollment.student.username }}</td>
+                        <td>{{ certificate.enrollment.course.title }}</td>
+                        <td>{{ certificate.issued_date|date:"M d, Y" }}</td>
+                        <td><code>{{ certificate.uuid|slice:":8" }}</code></td>
+                        <td>
+                            <a href="{% url 'certificates:view_certificate_uuid' certificate.uuid %}" class="btn btn-sm btn-info" target="_blank">View</a>
+                            <a href="{% url 'regenerate_certificate' certificate.id %}" class="btn btn-sm btn-warning">Regenerate</a>
+                            <a href="{% url 'revoke_certificate' certificate.id %}" class="btn btn-sm btn-danger">Revoke</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

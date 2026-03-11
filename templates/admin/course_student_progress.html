@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Progress - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <a href="{% url 'instructor_details' course.instructor.id %}" class="btn btn-secondary mb-4">
+        <i class="fas fa-arrow-left"></i> Back to Instructor
+    </a>
+    
+    <div class="page-header">
+        <h2>{{ course.title }}</h2>
+        <p class="text-muted"><i class="fas fa-user"></i> Instructor: {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon students">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_students }}</h3>
+                <p>Total Students</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon modules">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ course.modules.count }}</h3>
+                <p>Modules</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon lessons">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-content">
+                <h3>
+                    {% with total=0 %}
+                        {% for module in course.modules.all %}
+                            {% with total=total|add:module.lessons.count %}{% endwith %}
+                        {% endfor %}
+                        {{ total }}
+                    {% endwith %}
+                </h3>
+                <p>Lessons</p>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title">Students Progress</h3>
+    
+    <div class="students-progress-container">
+        {% for data in student_data %}
+        <div class="student-progress-card">
+            <div class="student-header">
+                <div class="student-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="student-info">
+                    <h5>{{ data.enrollment.student.get_full_name|default:data.enrollment.student.username }}</h5>
+                    <p>{{ data.enrollment.student.email }}</p>
+                </div>
+                <div class="student-status">
+                    {% if data.enrollment.completed %}
+                        <span class="status-badge completed"><i class="fas fa-trophy"></i> Completed</span>
+                    {% else %}
+                        <span class="status-badge in-progress"><i class="fas fa-clock"></i> In Progress</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="overall-progress">
+                <div class="progress-info">
+                    <span class="progress-label">Overall Progress</span>
+                    <span class="progress-value">{{ data.enrollment.progress|floatformat:0 }}%</span>
+                </div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill {% if data.enrollment.completed %}completed{% endif %}" style="width: {{ data.enrollment.progress }}%"></div>
+                </div>
+                <div class="lessons-count">
+                    <i class="fas fa-check-circle"></i> {{ data.completed_lessons }}/{{ data.total_lessons }} Lessons Completed
+                </div>
+            </div>
+
+            <div class="modules-progress">
+                <h6>Module Progress</h6>
+                <div class="modules-grid">
+                    {% for module in data.module_progress %}
+                    <div class="module-progress-item">
+                        <div class="module-name">{{ module.module.title }}</div>
+                        <div class="module-stats">
+                            <span class="lessons-stat">{{ module.completed }}/{{ module.total }}</span>
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill {% if module.percentage == 100 %}completed{% elif module.percentage > 0 %}in-progress{% endif %}" style="width: {{ module.percentage }}%"></div>
+                            </div>
+                            <span class="percentage-stat">{{ module.percentage|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="enrolled-date"><i class="fas fa-calendar"></i> Enrolled: {{ data.enrollment.enrollment_date|date:"M d, Y" }}</span>
+                <a href="{% url 'student_course_details' data.enrollment.student.id course.id %}" class="view-details-btn">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-users-slash"></i>
+            <p>No students enrolled in this course yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

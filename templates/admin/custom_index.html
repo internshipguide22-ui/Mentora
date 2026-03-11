@@ -1,0 +1,27 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+<div style="background: #417690; color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+    <h2 style="margin: 0 0 15px 0;">🎓 Quick Management Links</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'instructor_students_view' %}" style="background: white; color: #417690; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            👨🏫 Students by Instructor
+        </a>
+        <a href="{% url 'student_instructors_view' %}" style="background: white; color: #417690; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            👨🎓 Instructors by Student
+        </a>
+        <a href="{% url 'all_instructors' %}" style="background: white; color: #417690; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            📚 All Instructors
+        </a>
+        <a href="{% url 'all_students_progress' %}" style="background: white; color: #417690; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            📊 Student Progress
+        </a>
+        <a href="{% url 'admin_analytics' %}" style="background: white; color: #417690; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            📈 Analytics Dashboard
+        </a>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

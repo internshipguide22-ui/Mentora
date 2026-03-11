@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Add Question to {{ quiz.title }}</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" id="questionForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea name="text" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Type</label>
+                    <select name="question_type" class="form-select" id="questionType" required>
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="true_false">True/False</option>
+                        <option value="short_answer">Short Answer</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Points</label>
+                    <input type="number" name="points" class="form-control" value="1" min="1">
+                </div>
+                
+                <div id="multipleChoiceSection" style="display:block;">
+                    <h5>Answer Choices</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Choice 1</label>
+                        <input type="text" name="choice_1" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Choice 2</label>
+                        <input type="text" name="choice_2" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Choice 3</label>
+                        <input type="text" name="choice_3" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Choice 4</label>
+                        <input type="text" name="choice_4" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Correct Answer</label>
+                        <select name="correct_choice" class="form-select">
+                            <option value="1">Choice 1</option>
+                            <option value="2">Choice 2</option>
+                            <option value="3">Choice 3</option>
+                            <option value="4">Choice 4</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="trueFalseSection" style="display:none;">
+                    <h5>Correct Answer</h5>
+                    <div class="mb-3">
+                        <select name="correct_answer" class="form-select">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="shortAnswerSection" style="display:none;">
+                    <h5>Correct Answer (for reference)</h5>
+                    <div class="mb-3">
+                        <textarea name="correct_answer" class="form-control" rows="2" placeholder="Enter the expected answer..."></textarea>
+                        <small class="text-muted">This will require manual grading</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Add Question</button>
+                    <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('questionType').addEventListener('change', function() {
+    var multipleChoice = document.getElementById('multipleChoiceSection');
+    var trueFalse = document.getElementById('trueFalseSection');
+    var shortAnswer = document.getElementById('shortAnswerSection');
+    
+    multipleChoice.style.display = 'none';
+    trueFalse.style.display = 'none';
+    shortAnswer.style.display = 'none';
+    
+    if (this.value === 'multiple_choice') {
+        multipleChoice.style.display = 'block';
+    } else if (this.value === 'true_false') {
+        trueFalse.style.display = 'block';
+    } else if (this.value === 'short_answer') {
+        shortAnswer.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

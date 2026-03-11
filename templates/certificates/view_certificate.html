@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate - {{ certificate.enrollment.course.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-4 no-print">
+                {% if certificate.file %}
+                <a href="{{ certificate.file.url }}" class="btn btn-success btn-lg me-2" download>
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
+                <button onclick="window.print()" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <a href="{% url 'certificates:verify_certificate' certificate.uuid %}" class="btn btn-info btn-lg" target="_blank">
+                    <i class="fas fa-check-circle"></i> Verify
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="certificate-container">
+                <div class="certificate-border">
+                    <div class="certificate-content">
+                        <div class="certificate-header">
+                            <i class="fas fa-award certificate-icon"></i>
+                            <h1 class="certificate-title">Certificate of Completion</h1>
+                        </div>
+                        
+                        <div class="certificate-body">
+                            <p class="certificate-text">This is to certify that</p>
+                            <h2 class="student-name">{{ certificate.enrollment.student.get_full_name|default:certificate.enrollment.student.username }}</h2>
+                            <p class="certificate-text">has successfully completed the course</p>
+                            <h3 class="course-title">{{ certificate.enrollment.course.title }}</h3>
+                            <p class="certificate-text mt-4">Instructed by <strong>{{ certificate.enrollment.course.instructor.get_full_name|default:certificate.enrollment.course.instructor.username }}</strong></p>
+                        </div>
+                        
+                        <div class="certificate-footer">
+                            <div class="row mt-5">
+                                <div class="col-6 text-center">
+                                    <div class="signature-line"></div>
+                                    <p class="signature-label">Instructor Signature</p>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div class="signature-line"></div>
+                                    <p class="signature-label">Date: {{ certificate.issued_date|date:"F d, Y" }}</p>
+                                </div>
+                            </div>
+                            <p class="certificate-id mt-4">Certificate ID: {{ certificate.uuid }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4 no-print">
+                <a href="{% url 'accounts:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+@media print {
+    .no-print, nav, footer {
+        display: none !important;
+    }
+    .certificate-container {
+        padding: 0;
+        box-shadow: none;
+    }
+    body {
+        margin: 0;
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+{% endblock %}

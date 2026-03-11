@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - Course Details{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Courses</a></li>
+        <li class="breadcrumb-item active">{{ course.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="course-detail-row">
+        <div>
+            <div class="card course-detail-card">
+                {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h1 class="card-title">{{ course.title }}</h1>
+                    <p class="text-muted">
+                        <i class="fas fa-user"></i> Instructor: {{ course.instructor.get_full_name|default:course.instructor.username }}
+                    </p>
+                    {% if course.category %}
+                    <span class="badge bg-primary mb-3">{{ course.category.name }}</span>
+                    {% endif %}
+                    <hr>
+                    <h4>About This Course</h4>
+                    <p>{{ course.description }}</p>
+                    
+                    {% if course.syllabus %}
+                    <div class="mb-3">
+                        <a href="{{ course.syllabus.url }}" class="btn btn-outline-primary" download>
+                            <i class="fas fa-file-pdf"></i> Download Syllabus
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card course-detail-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Course Content</h4>
+                    {% if user == course.instructor or user.is_admin %}
+                    <div>
+                        <a href="{% url 'courses:module_create' course.pk %}" class="btn btn-sm btn-primary me-2">
+                            <i class="fas fa-folder-plus"></i> Add Module
+                        </a>
+                        <a href="{% url 'courses:lesson_create' course.pk %}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> Add Lesson
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% for module in course.modules.all %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-folder"></i> {{ module.title }}</h5>
+                        {% if module.description %}
+                        <p class="text-muted">{{ module.description }}</p>
+                        {% endif %}
+                        <div class="lessons-container">
+                            {% for lesson in module.lessons.all %}
+                            <div class="lesson-card {% if is_enrolled or user == course.instructor or user.is_admin %}lesson-clickable{% endif %}">
+                                {% if is_enrolled or user == course.instructor or user.is_admin %}
+                                <a href="{% url 'courses:lesson_detail' lesson.pk %}" class="lesson-link">
+                                {% endif %}
+                                    <div class="lesson-icon">
+                                        {% if user.is_student and is_enrolled and lesson.id in completed_lessons %}
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        {% else %}
+                                        <i class="fas fa-book-open text-primary"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="lesson-content">
+                                        <h6 class="lesson-title">
+                                            {{ lesson.title }}
+                                            {% if not is_enrolled and user != course.instructor and not user.is_admin %}
+                                            <i class="fas fa-lock text-muted"></i>
+                                            {% endif %}
+                                        </h6>
+                                        {% if lesson.description %}
+                                        <p class="lesson-desc">{{ lesson.description|truncatewords:15 }}</p>
+                                        {% endif %}
+                                        {% if user.is_student and is_enrolled %}
+                                        <div class="lesson-quizzes">
+                                            {% for quiz in lesson.quizzes.all %}
+                                            <span class="quiz-badge {% if quiz.id in completed_quizzes %}completed{% endif %}">
+                                                {% if quiz.id in completed_quizzes %}<i class="fas fa-check"></i>{% endif %}
+                                                {{ quiz.title }}
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                {% if is_enrolled or user == course.instructor or user.is_admin %}
+                                </a>
+                                {% endif %}
+                                <div class="lesson-actions">
+                                    {% if user.is_student and is_enrolled and lesson.id in completed_lessons %}
+                                    <span class="status-badge completed">Completed</span>
+                                    {% endif %}
+                                    {% if user == course.instructor or user.is_admin %}
+                                    <button onclick="window.location.href='{% url 'courses:lesson_update' lesson.pk %}'" class="action-btn edit-btn" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="if(confirm('Delete this lesson?')) window.location.href='{% url 'courses:lesson_delete' lesson.pk %}'" class="action-btn delete-btn" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">No lessons in this module yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No modules available yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if reviews %}
+            <div class="card course-detail-card">
+                <div class="card-header">
+                    <h4 class="mb-0">Student Reviews</h4>
+                </div>
+                <div class="card-body">
+                    {% for review in reviews %}
+                    <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ review.student.username }}</strong>
+                            <span class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                                {% endfor %}
+                            </span>
+                        </div>
+                        {% if review.comment %}<p class="mt-2 mb-0">{{ review.comment }}</p>{% endif %}
+                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <div class="card course-detail-card">
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        {% if is_enrolled %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> You are enrolled in this course
+                            </div>
+                            {% if enrollment %}
+                            <div class="mb-3">
+                                <h6>Your Progress</h6>
+                                <div class="progress">
+                                    <div class="progress-bar {% if enrollment.completed %}bg-success{% endif %}" role="progressbar" style="width: {{ enrollment.progress }}%">
+                                        {{ enrollment.progress|floatformat:0 }}%
+                                    </div>
+                                </div>
+                            </div>
+                            {% if enrollment.completed %}
+                            <div class="alert alert-success text-center">
+                                <i class="fas fa-trophy"></i> Course Completed!
+                            </div>
+                            <a href="{% url 'certificates:generate' enrollment.id %}" class="btn btn-success w-100 mb-2">
+                                <i class="fas fa-certificate"></i> View Certificate
+                            </a>
+                            {% endif %}
+                            {% endif %}
+                        {% elif user == course.instructor or user.is_admin %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> You {% if user.is_admin %}have admin access to{% else %}are the instructor of{% endif %} this course
+                            </div>
+                            {% if user.is_admin %}
+                            <a href="{% url 'courses:course_update' course.pk %}" class="btn btn-warning w-100 mb-2">
+                                <i class="fas fa-edit"></i> Edit Course
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'courses:manage_students' course.pk %}" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-users"></i> Manage Students
+                            </a>
+                        {% elif user.is_student %}
+                            <form method="post" action="{% url 'courses:course_enroll' course.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="fas fa-user-plus"></i> Enroll Now
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                Only students can enroll in courses.
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            Please <a href="{% url 'accounts:login' %}">login</a> to enroll in this course.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card course-detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-calendar"></i> Created: {{ course.created_at|date:"M d, Y" }}</p>
+                    <p><i class="fas fa-clock"></i> Updated: {{ course.updated_at|date:"M d, Y" }}</p>
+                    <p><i class="fas fa-users"></i> Students: {{ course.enrollments.count }}</p>
+                    <p><i class="fas fa-star text-warning"></i> Rating: {{ avg_rating|floatformat:1 }}/5 ({{ reviews.count }} reviews)</p>
+                </div>
+            </div>
+
+            {% if enrollment.completed and user.is_student %}
+            <div class="card course-detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Leave a Review</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'reviews:add_review' course.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <select name="rating" class="form-select" required>
+                                <option value="">Select rating</option>
+                                {% for i in "12345" %}
+                                <option value="{{ i }}" {% if user_review.rating == i|add:0 %}selected{% endif %}>{{ i }} Star{% if i != "1" %}s{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comment</label>
+                            <textarea name="comment" class="form-control" rows="3">{% if user_review %}{{ user_review.comment }}{% endif %}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

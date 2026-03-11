@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if certificate %}Edit Certificate{% else %}Create Certificate{% endif %}
+{% endblock %}
+
+{% block content %}
+    <h1>{% if certificate %}Edit Certificate{% else %}Create Certificate{% endif %}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Certificate</button>
+    </form>
+    <a href="{% url 'certificates:view_certificate' certificate.id %}">Cancel</a>
+{% endblock %}

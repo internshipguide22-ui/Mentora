@@ -1,0 +1,359 @@
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    margin: 0;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.doubt-stats {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.stat-badge {
+    padding: 0.75rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-badge.answered {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.stat-badge.pending, .stat-badge.waiting {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.unresolved-badge {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-radius: 9999px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Doubts Container */
+.doubts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.doubt-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.doubt-card.unresolved {
+    border-color: #fbbf24;
+    background: #fffbeb;
+}
+
+.doubt-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Doubt Header */
+.doubt-header {
+    background: linear-gradient(135deg, #417690 0%, #2c5f7a 100%);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.doubt-card.unresolved .doubt-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.doubt-card.pending .doubt-header {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.question-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.question-info i {
+    color: #417690;
+}
+
+.waiting-message {
+    background: #fef3c7;
+    border: 2px dashed #f59e0b;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    color: #92400e;
+}
+
+.waiting-message i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.waiting-message p {
+    margin: 0;
+    font-weight: 600;
+}
+
+.doubt-info {
+    flex: 1;
+}
+
+.lesson-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.course-name {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.doubt-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-badge.resolved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.pending {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.status-badge.answered {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.waiting {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+/* Doubt Body */
+.doubt-body {
+    padding: 1.5rem;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.student-info i {
+    font-size: 1.5rem;
+    color: #417690;
+}
+
+.doubt-date {
+    margin-left: auto;
+    color: #9ca3af;
+}
+
+.question-box {
+    background: #f9fafb;
+    border-left: 4px solid #417690;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.doubt-card.unresolved .question-box {
+    border-left-color: #f59e0b;
+}
+
+.question-box strong {
+    color: #1f2937;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.question-box p {
+    margin: 0;
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* Responses Section */
+.responses-section {
+    background: #f3f4f6;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.responses-section h6 {
+    margin: 0 0 1rem 0;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.response-item {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.response-item:last-child {
+    margin-bottom: 0;
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.response-header strong {
+    color: #417690;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.response-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.response-text {
+    margin: 0;
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* Doubt Actions */
+.doubt-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.respond-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.respond-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.75rem;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6b7280;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state small {
+    color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .doubt-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .student-info {
+        flex-wrap: wrap;
+    }
+    
+    .doubt-date {
+        margin-left: 0;
+        width: 100%;
+    }
+}

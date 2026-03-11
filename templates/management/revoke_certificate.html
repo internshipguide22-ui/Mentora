@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Revoke Certificate{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Revoke Certificate</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <p>Are you sure you want to revoke the certificate for:</p>
+            <ul>
+                <li><strong>Student:</strong> {{ certificate.enrollment.student.username }}</li>
+                <li><strong>Course:</strong> {{ certificate.enrollment.course.title }}</li>
+                <li><strong>Issued:</strong> {{ certificate.issued_date|date:"M d, Y" }}</li>
+            </ul>
+            <p class="text-danger">This action cannot be undone!</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Yes, Revoke</button>
+                    <a href="{% url 'manage_certificates' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

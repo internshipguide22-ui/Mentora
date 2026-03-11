@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if form.instance.pk %}
+    Edit User
+  {% else %}
+    Create User
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <h1>
+    {% if form.instance.pk %}
+      Edit User: {{ form.instance.username }}
+    {% else %}
+      Create New User
+    {% endif %}
+  </h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+  <p><a href="{% url 'accounts_admin:user_list' %}">Back to User List</a></p>
+{% endblock %}

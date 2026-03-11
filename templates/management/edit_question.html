@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Question{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Edit Question</h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" id="questionForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Question Text</label>
+                    <textarea name="text" class="form-control" rows="3" required>{{ question.text }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Question Type</label>
+                    <select name="question_type" class="form-select" id="questionType" required>
+                        <option value="multiple_choice" {% if question.question_type == 'multiple_choice' %}selected{% endif %}>Multiple Choice</option>
+                        <option value="true_false" {% if question.question_type == 'true_false' %}selected{% endif %}>True/False</option>
+                        <option value="short_answer" {% if question.question_type == 'short_answer' %}selected{% endif %}>Short Answer</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Points</label>
+                    <input type="number" name="points" class="form-control" value="{{ question.points }}" min="1">
+                </div>
+                
+                <div id="multipleChoiceSection" style="display:{% if question.question_type == 'multiple_choice' %}block{% else %}none{% endif %};">
+                    <h5>Answer Choices</h5>
+                    {% for choice in question.choices.all %}
+                    <div class="mb-3">
+                        <label class="form-label">Choice {{ forloop.counter }}</label>
+                        <input type="text" name="choice_{{ forloop.counter }}" class="form-control" value="{{ choice.text }}">
+                    </div>
+                    {% endfor %}
+                    <div class="mb-3">
+                        <label class="form-label">Correct Answer</label>
+                        <select name="correct_choice" class="form-select">
+                            {% for choice in question.choices.all %}
+                            <option value="{{ forloop.counter }}" {% if choice.is_correct %}selected{% endif %}>Choice {{ forloop.counter }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="trueFalseSection" style="display:{% if question.question_type == 'true_false' %}block{% else %}none{% endif %};">
+                    <h5>Correct Answer</h5>
+                    <div class="mb-3">
+                        <select name="correct_answer" class="form-select">
+                            <option value="true" {% if question.correct_answer == 'true' %}selected{% endif %}>True</option>
+                            <option value="false" {% if question.correct_answer == 'false' %}selected{% endif %}>False</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="shortAnswerSection" style="display:{% if question.question_type == 'short_answer' %}block{% else %}none{% endif %};">
+                    <h5>Correct Answer (for reference)</h5>
+                    <div class="mb-3">
+                        <textarea name="correct_answer" class="form-control" rows="2" placeholder="Enter the expected answer...">{{ question.correct_answer }}</textarea>
+                        <small class="text-muted">This will require manual grading</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Update Question</button>
+                    <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('questionType').addEventListener('change', function() {
+    var multipleChoice = document.getElementById('multipleChoiceSection');
+    var trueFalse = document.getElementById('trueFalseSection');
+    var shortAnswer = document.getElementById('shortAnswerSection');
+    
+    multipleChoice.style.display = 'none';
+    trueFalse.style.display = 'none';
+    shortAnswer.style.display = 'none';
+    
+    if (this.value === 'multiple_choice') {
+        multipleChoice.style.display = 'block';
+    } else if (this.value === 'true_false') {
+        trueFalse.style.display = 'block';
+    } else if (this.value === 'short_answer') {
+        shortAnswer.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

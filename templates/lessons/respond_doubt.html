@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Respond to Doubt - LMS{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Respond to Student Doubt</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>{{ doubt.lesson.title }}</h5>
+            <p><strong>Student:</strong> {{ doubt.student.username }}</p>
+            <p><strong>Question:</strong></p>
+            <p>{{ doubt.question }}</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="response">Your Response:</label>
+                    <textarea name="response" id="response" class="form-control" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Response</button>
+                <a href="{% url 'lessons:view_doubts' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Quizzes{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Quiz Management</h1>
+        <a href="{% url 'admin_analytics' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" placeholder="Search by quiz title..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Search</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'manage_quizzes' %}" class="btn btn-secondary w-100"><i class="fas fa-times"></i> Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> All Quizzes ({{ quizzes.count }})</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 20%;">Quiz Title</th>
+                        <th style="width: 15%;">Course</th>
+                        <th style="width: 12%;">Module</th>
+                        <th style="width: 15%;">Lesson</th>
+                        <th style="width: 12%;">Instructor</th>
+                        <th style="width: 8%;">Questions</th>
+                        <th style="width: 8%;">Published</th>
+                        <th style="width: 10%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                    <tr>
+                        <td><strong>{{ quiz.title }}</strong></td>
+                        <td><small>{{ quiz.lesson.module.course.title }}</small></td>
+                        <td><small>{{ quiz.lesson.module.title }}</small></td>
+                        <td><small>{{ quiz.lesson.title }}</small></td>
+                        <td><small>{{ quiz.instructor.get_full_name|default:quiz.instructor.username }}</small></td>
+                        <td class="text-center"><span class="badge bg-info">{{ quiz.questions.count }}</span></td>
+                        <td class="text-center">
+                            {% if quiz.is_published %}
+                            <span class="badge bg-success">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-sm btn-warning" title="Edit Quiz"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'add_question' quiz.id %}" class="btn btn-sm btn-success" title="Add Question"><i class="fas fa-plus"></i></a>
+                                <a href="{% url 'delete_quiz' quiz.id %}" class="btn btn-sm btn-danger" title="Delete Quiz" onclick="return confirm('Delete this quiz?')"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            <h5>No quizzes found</h5>
+                            <p>Try adjusting your search or create a new quiz.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

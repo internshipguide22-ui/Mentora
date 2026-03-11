@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ quiz.title }} - Quiz{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ quiz.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <p>{{ quiz.description }}</p>
+                    <hr>
+                    <p><strong>Time Limit:</strong> {{ quiz.time_limit_minutes }} minutes</p>
+                    <p><strong>Total Questions:</strong> {{ quiz.total_questions }}</p>
+                    
+                    {% if user.is_admin or user == quiz.instructor %}
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Questions</h4>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'quizzes:quiz_results' quiz.pk %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-chart-bar"></i> View Results
+                                </a>
+                                <a href="{% url 'quizzes:create_question' quiz.pk %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i> Add Question
+                                </a>
+                            </div>
+                        </div>
+                        <div class="questions-container">
+                            {% for question in quiz.questions.all %}
+                            <div class="question-card">
+                                <div class="question-header">
+                                    <div class="question-number">{{ forloop.counter }}</div>
+                                    <div class="question-content">
+                                        <h6 class="question-text">{{ question.text }}</h6>
+                                        <div class="question-meta">
+                                            <span class="meta-badge">{{ question.get_question_type_display }}</span>
+                                            <span class="meta-badge">{{ question.points }} pts</span>
+                                        </div>
+                                    </div>
+                                    <div class="question-actions">
+                                        <button onclick="window.location.href='{% url 'quizzes:edit_question' question.pk %}'" class="action-btn edit-btn" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button onclick="if(confirm('Delete this question?')) window.location.href='{% url 'quizzes:delete_question' question.pk %}'" class="action-btn delete-btn" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% if question.question_type == 'multiple_choice' %}
+                                <div class="choices-container">
+                                    {% for choice in question.choices.all %}
+                                    <div class="choice-item {% if choice.is_correct %}correct{% endif %}">
+                                        <span class="choice-text">{{ choice.text }}</span>
+                                        <div class="choice-actions">
+                                            {% if choice.is_correct %}<span class="correct-badge">Correct</span>{% endif %}
+                                            <button onclick="window.location.href='{% url 'quizzes:edit_choice' choice.pk %}'" class="action-btn-sm edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="if(confirm('Delete?')) window.location.href='{% url 'quizzes:delete_choice' choice.pk %}'" class="action-btn-sm delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    <button onclick="window.location.href='{% url 'quizzes:create_choice' question.pk %}'" class="add-choice-btn">
+                                        <i class="fas fa-plus"></i> Add Choice
+                                    </button>
+                                </div>
+                                {% elif question.question_type == 'true_false' %}
+                                <div class="answer-display">
+                                    <strong>Correct Answer:</strong> {{ question.correct_answer }}
+                                </div>
+                                {% elif question.question_type == 'short_answer' %}
+                                <div class="answer-display">
+                                    <strong>Expected Answer:</strong> {{ question.correct_answer }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            <p class="text-muted">No questions added yet.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if user.is_student %}
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Your Attempts</h4>
+                </div>
+                <div class="card-body">
+                    {% if attempts %}
+                    <div class="alert alert-info mb-3">
+                        <strong>Best Score:</strong> {{ best_score|floatformat:1 }}%
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Attempt</th>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in attempts %}
+                            <tr>
+                                <td>#{{ attempt.attempt_number }}</td>
+                                <td>{{ attempt.started_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    {% if attempt.score %}
+                                        <span class="{% if attempt.passed %}text-success{% else %}text-danger{% endif %}">
+                                            {{ attempt.score|floatformat:1 }}%
+                                        </span>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if attempt.completed_at %}
+                                        {% if attempt.passed %}
+                                            <span class="badge bg-success">Passed</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-warning">In Progress</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if attempt.completed_at %}
+                                        <a href="{% url 'quizzes:quiz_result' attempt.pk %}" class="btn btn-sm btn-info">View Result</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">You haven't attempted this quiz yet.</p>
+                    {% endif %}
+                    
+                    {% if can_attempt %}
+                    <a href="{% url 'quizzes:take_quiz' quiz.pk %}" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Take Quiz
+                    </a>
+                    <p class="text-muted mt-2">Attempts remaining: {{ attempts_remaining }} of {{ quiz.max_attempts }}</p>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> You have reached the maximum number of attempts ({{ quiz.max_attempts }}) for this quiz.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quiz Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Course:</strong> {{ course.title }}</p>
+                    <p><strong>Lesson:</strong> {{ quiz.lesson.title }}</p>
+                    <p><strong>Instructor:</strong> {{ quiz.instructor.get_full_name }}</p>
+                    <hr>
+                    <a href="{% url 'courses:lesson_detail' quiz.lesson.pk %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Lesson
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

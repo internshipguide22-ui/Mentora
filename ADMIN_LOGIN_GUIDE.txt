@@ -1,0 +1,61 @@
+========================================
+   HOW TO SEE STUDENTS BY INSTRUCTOR
+========================================
+
+STEP 1: Start Server
+--------------------
+python manage.py runserver
+
+
+STEP 2: Login to Admin
+-----------------------
+URL: http://127.0.0.1:8000/admin/
+Username: admin
+Password: admin123
+
+
+STEP 3: You'll See Buttons at TOP
+----------------------------------
+Right after login, at the TOP of the page, you'll see:
+
+┌─────────────────────────────────────┐
+│   🎓 Quick Management Links         │
+├─────────────────────────────────────┤
+│  [👨🏫 Students by Instructor]      │
+│  [👨🎓 Instructors by Student]      │
+│  [📚 All Instructors]               │
+│  [📊 Student Progress]              │
+│  [📈 Analytics Dashboard]           │
+└─────────────────────────────────────┘
+
+
+STEP 4: Click First Button
+---------------------------
+Click: [👨🏫 Students by Instructor]
+
+
+STEP 5: See the Results!
+-------------------------
+You'll see:
+
+Instructor 1 Name
+  - Student A (taking 2 courses, 75% progress)
+  - Student B (taking 1 course, 45% progress)
+  - Student C (taking 3 courses, 90% progress)
+
+Instructor 2 Name
+  - Student D (taking 1 course, 30% progress)
+  - Student E (taking 2 courses, 65% progress)
+
+etc.
+
+
+========================================
+         THAT'S IT! DONE!
+========================================
+
+The buttons are RIGHT THERE when you login!
+
+Just click: "👨🏫 Students by Instructor"
+
+========================================

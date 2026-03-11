@@ -1,0 +1,155 @@
+================================================================================
+                    HOW TO SEE STUDENTS UNDER INSTRUCTORS
+================================================================================
+
+STEP 1: Start Server
+---------------------
+Open terminal/command prompt and run:
+    python manage.py runserver
+
+
+STEP 2: Open Browser
+---------------------
+Go to: http://127.0.0.1:8000/admin/
+
+
+STEP 3: Login
+-------------
+Username: admin
+Password: admin123
+
+
+STEP 4: Go to Analytics
+------------------------
+After login, in the URL bar type:
+    http://127.0.0.1:8000/admin/analytics/
+
+OR click on "View site" then add "/admin/analytics/" to the URL
+
+
+STEP 5: You Should See This
+----------------------------
+At the TOP of the page, you'll see a box with buttons:
+
+    ┌─────────────────────────────────────────────────────┐
+    │              Quick Access                            │
+    ├─────────────────────────────────────────────────────┤
+    │  [👨🏫 Students by Instructor]                       │
+    │  [📚 Manage Instructors]                             │
+    │  [👥 Student Progress]                               │
+    │  [👤 Manage Users]                                   │
+    │  [📖 Manage Courses]                                 │
+    └─────────────────────────────────────────────────────┘
+
+
+STEP 6: Click First Button
+---------------------------
+Click on: [👨🏫 Students by Instructor]
+
+This takes you to: http://127.0.0.1:8000/manage/instructor-students/
+
+
+STEP 7: What You'll See
+------------------------
+
+    👨🏫 John Doe (john@example.com)
+        3 Students
+        
+        ┌──────────────┬─────────────┬─────────┬───────────┬──────────┐
+        │ Student      │ Email       │ Courses │ Completed │ Progress │
+        ├──────────────┼─────────────┼─────────┼───────────┼──────────┤
+        │ Jane Smith   │ jane@...    │    2    │     1     │   75%    │
+        │ Bob Johnson  │ bob@...     │    1    │     0     │   45%    │
+        │ Alice Brown  │ alice@...   │    3    │     2     │   90%    │
+        └──────────────┴─────────────┴─────────┴───────────┴──────────┘
+        
+        [View Courses] button for each student
+
+
+    👨🏫 Mary Wilson (mary@example.com)
+        2 Students
+        
+        ┌──────────────┬─────────────┬─────────┬───────────┬──────────┐
+        │ Student      │ Email       │ Courses │ Completed │ Progress │
+        ├──────────────┼─────────────┼─────────┼───────────┼──────────┤
+        │ Tom Davis    │ tom@...     │    1    │     0     │   30%    │
+        │ Sara Lee     │ sara@...    │    2    │     1     │   65%    │
+        └──────────────┴─────────────┴─────────┴───────────┴──────────┘
+
+
+STEP 8: Click "View Courses"
+-----------------------------
+Click [View Courses] button next to any student to see:
+
+    Courses:
+    • Python Programming - 80% - ✅ Completed
+    • Web Development - 60% - ⚠️ In Progress
+    • Data Science - 45% - ⚠️ In Progress
+    
+    [Details] button for each course
+
+
+STEP 9: Click "Details"
+------------------------
+Click [Details] to see lesson-by-lesson progress!
+
+
+================================================================================
+                            ALTERNATIVE VIEW
+================================================================================
+
+From the Students by Instructor page, click:
+    [Switch to Students View]
+
+This shows the REVERSE - which instructors teach each student:
+
+    👨🎓 Jane Smith (jane@example.com)
+        Learning from 2 Instructors
+        
+        ┌──────────────┬─────────────┬─────────┬───────────┬──────────┐
+        │ Instructor   │ Email       │ Courses │ Completed │ Progress │
+        ├──────────────┼─────────────┼─────────┼───────────┼──────────┤
+        │ John Doe     │ john@...    │    2    │     1     │   75%    │
+        │ Mary Wilson  │ mary@...    │    1    │     1     │   100%   │
+        └──────────────┴─────────────┴─────────┴───────────┴──────────┘
+
+
+================================================================================
+                        ALSO IN DJANGO ADMIN
+================================================================================
+
+Go to: http://127.0.0.1:8000/admin/courses/enrollment/
+
+You'll see a column called "Instructor" showing which instructor's course
+each student is enrolled in.
+
+Click on the instructor name to go to their details page!
+
+
+================================================================================
+                            TROUBLESHOOTING
+================================================================================
+
+Problem: I don't see the buttons
+Solution: Make sure you're at /admin/analytics/ NOT just /admin/
+
+Problem: I get an error
+Solution: Make sure server is running and you're logged in
+
+Problem: No data shows
+Solution: Run: python manage.py shell < seed_complete.py
+
+Problem: Page not found
+Solution: Check the URL is exactly: http://127.0.0.1:8000/admin/analytics/
+
+
+================================================================================
+                            QUICK SUMMARY
+================================================================================
+
+1. Start server
+2. Go to: http://127.0.0.1:8000/admin/analytics/
+3. Click: "👨🏫 Students by Instructor"
+4. See: All instructors with their students!
+
+================================================================================

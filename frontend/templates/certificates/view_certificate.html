@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}View Certificate{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Certificate for {{ certificate.enrollment.student.get_full_name }}</h1>
+    <div class="card">
+        <div class="card-body text-center">
+            {% if certificate.image %}
+                <img src="{{ certificate.image.url }}" alt="Certificate" class="img-fluid border rounded mb-4">
+            {% else %}
+                <p class="text-warning">Certificate image not yet generated. Please try again later.</p>
+            {% endif %}
+            <p><strong>Course:</strong> {{ certificate.enrollment.course.title }}</p>
+            <p><strong>Issued Date:</strong> {{ certificate.issued_date|date:"F d, Y" }}</p>
+            <p><strong>Grade:</strong> {{ certificate.grade }}</p>
+            <p><strong>Verification UUID:</strong> {{ certificate.uuid }}</p>
+            <p><a href="{{ certificate.verification_url }}" target="_blank">Verify Certificate Online</a></p>
+            <div class="mt-4">
+                <a href="{% url 'certificates:edit_certificate' certificate.id %}" class="btn btn-primary me-2">Edit Certificate</a>
+                <a href="{% url 'certificates:delete_certificate' certificate.id %}" class="btn btn-danger">Delete Certificate</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

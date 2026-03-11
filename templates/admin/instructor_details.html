@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instructor Details - {{ instructor.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'all_instructors' %}" class="btn btn-secondary mb-3">← Back to All Instructors</a>
+            <h2>Instructor Details</h2>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    {% if instructor.profile_picture %}
+                        <img src="{{ instructor.profile_picture.url }}" class="img-fluid rounded-circle" style="max-width: 150px;">
+                    {% else %}
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; margin: 0 auto;">
+                            <h1>{{ instructor.username.0|upper }}</h1>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <h3>{{ instructor.get_full_name|default:instructor.username }}</h3>
+                    <p><strong>Username:</strong> {{ instructor.username }}</p>
+                    <p><strong>Email:</strong> {{ instructor.email }}</p>
+                    <p><strong>Phone:</strong> {{ instructor.phone|default:"N/A" }}</p>
+                    <p><strong>Joined:</strong> {{ instructor.date_joined|date:"F d, Y" }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if instructor.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h1 class="text-primary">{{ total_courses }}</h1>
+                    <p>Total Courses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h1 class="text-success">{{ total_students }}</h1>
+                    <p>Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h1 class="text-info">{{ courses|length }}</h1>
+                    <p>Active Courses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Courses</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Course Title</th>
+                    <th>Category</th>
+                    <th>Enrollments</th>
+                    <th>Completed</th>
+                    <th>Completion Rate</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td><strong>{{ course.title }}</strong></td>
+                    <td>{{ course.category|default:"N/A" }}</td>
+                    <td><span class="badge bg-primary">{{ course.enrollment_count }}</span></td>
+                    <td><span class="badge bg-success">{{ course.completion_count }}</span></td>
+                    <td>
+                        {% if course.enrollment_count > 0 %}
+                            {% widthratio course.completion_count course.enrollment_count 100 %}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </td>
+                    <td>{{ course.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'course_student_progress' course.id %}" class="btn btn-sm btn-info">View Students</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No courses found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

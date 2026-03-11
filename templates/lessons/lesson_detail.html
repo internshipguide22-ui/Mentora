@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load video_filters %}
+
+{% block title %}{{ lesson.title }} - Lesson{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}">Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'courses:course_detail' course.pk %}">{{ course.title }}</a></li>
+        <li class="breadcrumb-item active">{{ lesson.title }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ lesson.title }}</h2>
+                </div>
+                <div class="card-body">
+                    {% if lesson.description %}
+                    <p class="text-muted">{{ lesson.description }}</p>
+                    <hr>
+                    {% endif %}
+
+                    {% if lesson.video_file %}
+                    <div class="mb-4">
+                        <h4>Video Lesson</h4>
+                        <div class="ratio ratio-16x9">
+                            <video controls class="w-100">
+                                <source src="{{ lesson.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if lesson.video_url %}
+                    <div class="mb-4">
+                        <h4>Reference Video</h4>
+                        <div class="ratio ratio-16x9">
+                            {% if 'youtube.com' in lesson.video_url or 'youtu.be' in lesson.video_url %}
+                                {% with video_id=lesson.video_url|youtube_id %}
+                                    {% if video_id %}
+                                        <iframe src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif 'vimeo.com' in lesson.video_url %}
+                                {% with video_id=lesson.video_url|vimeo_id %}
+                                    {% if video_id %}
+                                        <iframe src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if lesson.content %}
+                    <div class="mb-4">
+                        <h4>Lesson Content</h4>
+                        <div class="lesson-content">
+                            {{ lesson.content|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if lesson.attachment %}
+                    <div class="mb-4">
+                        <h4>Attachments</h4>
+                        <a href="{{ lesson.attachment.url }}" class="btn btn-outline-primary" download>
+                            <i class="fas fa-download"></i> Download Attachment
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4>Quizzes</h4>
+                            {% if user == course.instructor or user.is_admin %}
+                            <a href="{% url 'create_quiz_for_lesson' lesson.id %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus"></i> Add Quiz
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% if lesson.quizzes.exists %}
+                        <div class="list-group">
+                            {% for quiz in lesson.quizzes.all %}
+                            <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ quiz.title }}</h5>
+                                    <small><i class="fas fa-question-circle"></i> {{ quiz.total_questions }} questions</small>
+                                </div>
+                                <p class="mb-1">{{ quiz.description|truncatewords:20 }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No quizzes yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if user.is_student %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ask a Question</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'lessons:add_doubt' lesson.pk %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="question" class="form-control" rows="3" placeholder="Have a doubt? Ask your instructor..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Question</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                {% if not is_completed %}
+                    {% if has_quizzes and not quizzes_completed %}
+                    <div class="alert alert-warning w-100">
+                        <i class="fas fa-exclamation-triangle"></i> You must complete all quizzes before marking this lesson as complete.
+                    </div>
+                    {% else %}
+                    <form method="post" action="{% url 'courses:lesson_complete' lesson.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Mark as Complete
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Lesson Completed!
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Progress</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Course:</strong> {{ course.title }}</p>
+                    <p><strong>Module:</strong> {{ lesson.module.title }}</p>
+                    <p><strong>Instructor:</strong> {{ course.instructor.get_full_name }}</p>
+                    <hr>
+                    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Course
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LMS - Learning Management System{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}?v=17">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/admin-fix.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/navbar-fix.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/instructor-students.css' %}?v=11">
+    <link rel="stylesheet" href="{% static 'css/lessons.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/quizzes.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/student-progress.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/admin-progress.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/doubts.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/assessments.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}?v=1">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a class="navbar-brand" href="/">🎓 Learning Management System</a>
+            <button class="navbar-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="navbar-menu" id="navbarMenu">
+                <a class="nav-link" href="{% url 'home' %}">Home</a>
+                <a class="nav-link" href="{% url 'courses:course_list' %}">Courses</a>
+                {% if user.is_authenticated %}
+                <a class="nav-link" href="{% url 'accounts:dashboard' %}">Dashboard</a>
+                <div class="dropdown" id="userDropdownContainer">
+                    <span class="nav-link dropdown-toggle" onclick="toggleDropdown(event)">{{ user.username }}</span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        {% if user.is_admin %}
+                        <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">Admin Dashboard</a>
+                        <a class="dropdown-item" href="/admin/">Admin Panel</a>
+                        {% elif user.is_instructor %}
+                        <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">Instructor Dashboard</a>
+                        {% else %}
+                        <a class="dropdown-item" href="{% url 'accounts:dashboard' %}">Student Dashboard</a>
+                        <a class="dropdown-item" href="{% url 'courses:course_list' %}">Browse Courses</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a>
+                        <form action="{% url 'accounts:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item">Logout</button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                <a class="btn-register" href="{% url 'accounts:register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <main>
+        <div class="container mt-2">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                        {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block breadcrumb %}{% endblock %}
+        </div>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <h5>LMS - Learning Management System</h5>
+                    <p>Providing quality education since 2023</p>
+                </div>
+                <div class="footer-right">
+                    <p>&copy; 2023 LMS. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+    function toggleMenu() {
+        const menu = document.getElementById('navbarMenu');
+        const overlay = document.getElementById('overlay');
+        menu.classList.toggle('active');
+        if (overlay) overlay.classList.toggle('active');
+    }
+    
+    function toggleDropdown(e) {
+        e.stopPropagation();
+        const container = document.getElementById('userDropdownContainer');
+        const dropdown = document.getElementById('userDropdown');
+        container.classList.toggle('active');
+        dropdown.classList.toggle('active');
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('userDropdownContainer');
+            const dropdown = document.getElementById('userDropdown');
+            if (container && dropdown && !e.target.closest('.dropdown')) {
+                container.classList.remove('active');
+                dropdown.classList.remove('active');
+            }
+        });
+        
+        const overlay = document.getElementById('overlay');
+        if (overlay) {
+            overlay.addEventListener('click', toggleMenu);
+        }
+        
+        // Auto-dismiss alerts after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+    });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

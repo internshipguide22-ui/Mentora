@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Students by Instructor{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Students Learning Under Each Instructor</h2>
+            <p class="text-muted">View which students are enrolled in courses by each instructor</p>
+            <div class="mb-3">
+                <a href="{% url 'student_instructors_view' %}" class="btn btn-info">Switch to Students View</a>
+                <a href="{% url 'admin_analytics' %}" class="btn btn-secondary">Back to Analytics</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Total Instructors:</strong> {{ total_instructors }}
+    </div>
+
+    {% for data in instructor_data %}
+    <div class="instructor-card">
+        <div class="instructor-header">
+            <div class="instructor-info">
+                <div class="instructor-details">
+                    <h4>👨🏫 {{ data.instructor.get_full_name|default:data.instructor.username }}</h4>
+                    <small>{{ data.instructor.email }} | @{{ data.instructor.username }}</small>
+                </div>
+                <div class="student-count-badge">
+                    {{ data.student_count }} Student{{ data.student_count|pluralize }}
+                </div>
+            </div>
+        </div>
+        {% if data.students %}
+        <div class="students-grid">
+            {% for student_info in data.students %}
+            <div class="student-card">
+                <div class="student-header">
+                    <div>
+                        <h5 class="student-name">{{ student_info.student.get_full_name|default:student_info.student.username }}</h5>
+                        <div class="student-username">@{{ student_info.student.username }}</div>
+                    </div>
+                </div>
+                <div class="student-email">{{ student_info.student.email }}</div>
+                
+                <div class="student-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Courses</div>
+                        <div class="stat-value">{{ student_info.courses|length }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Completed</div>
+                        <div class="stat-value" style="color: #10b981;">{{ student_info.completed_count }}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Avg Progress</div>
+                        <div class="stat-value">{{ student_info.avg_progress|floatformat:0 }}%</div>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-label">Overall Progress</div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-fill {% if student_info.avg_progress < 30 %}danger{% elif student_info.avg_progress < 70 %}warning{% endif %}" 
+                             style="width: {{ student_info.avg_progress }}%;">
+                            {{ student_info.avg_progress|floatformat:0 }}%
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="view-courses-btn" onclick="toggleCourses('student-{{ student_info.student.id }}-instructor-{{ data.instructor.id }}', this)">
+                    View Courses ({{ student_info.courses|length }})
+                </button>
+                
+                <div class="courses-collapse" id="student-{{ student_info.student.id }}-instructor-{{ data.instructor.id }}">
+                    <div class="courses-content">
+                        <h6 class="courses-title">Enrolled Courses:</h6>
+                        {% for course_info in student_info.courses %}
+                        <div class="course-item">
+                            <div class="course-name">{{ course_info.course.title }}</div>
+                            <div class="course-progress">
+                                <div class="course-progress-bar">
+                                    <div class="course-progress-fill" style="width: {{ course_info.enrollment.progress }}%; background: {% if course_info.enrollment.completed %}#10b981{% else %}#f59e0b{% endif %};">
+                                        {{ course_info.enrollment.progress|floatformat:0 }}%
+                                    </div>
+                                </div>
+                                <span class="course-status {% if course_info.enrollment.completed %}completed{% else %}in-progress{% endif %}">
+                                    {% if course_info.enrollment.completed %}Completed{% else %}In Progress{% endif %}
+                                </span>
+                            </div>
+                            <div class="course-actions">
+                                <a href="{% url 'student_course_details' student_info.student.id course_info.course.id %}" class="course-details-btn">View Details</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted text-center p-4">No students enrolled in this instructor's courses yet.</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="alert alert-warning">No instructors found in the system.</div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleCourses(id, btn) {
+    const element = document.getElementById(id);
+    element.classList.toggle('show');
+    btn.classList.toggle('active');
+    btn.textContent = element.classList.contains('show') ? 'Hide Courses' : 'View Courses (' + element.querySelectorAll('.course-item').length + ')';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Instructor Dashboard - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Instructor Dashboard</h1>
+    <p class="lead">Welcome, {{ user.get_full_name|default:user.username }}!</p>
+
+    <div class="row mb-4">
+        <div class="col-md-4 dashboard-col">
+            <div class="card text-center dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Courses</h5>
+                    <h2 class="card-text text-primary">{{ courses.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 dashboard-col">
+            <div class="card text-center dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Students</h5>
+                    <h2 class="card-text text-success">{{ total_students }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 dashboard-col">
+            <div class="card text-center dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Quizzes</h5>
+                    <h2 class="card-text text-info">{{ total_quizzes }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <a href="{% url 'courses:instructor_manage_all_students' %}" class="btn btn-primary btn-lg w-100 mb-2">
+            <i class="fas fa-users"></i> Manage All Students
+        </a>
+        <a href="{% url 'quizzes:instructor_assessments' %}" class="btn btn-success btn-lg w-100 mb-2">
+            <i class="fas fa-clipboard-list"></i> My Assessments & Quizzes
+        </a>
+        <a href="{% url 'lessons:view_doubts' %}" class="btn btn-warning btn-lg w-100">
+            <i class="fas fa-question-circle"></i> View Student Doubts
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">My Courses</h5>
+        </div>
+        <div class="card-body">
+            {% if courses %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Course Title</th>
+                            <th>Students Enrolled</th>
+                            <th>Modules</th>
+                            <th>Lessons</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'courses:course_detail' course.pk %}" class="text-decoration-none">
+                                    {{ course.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ course.enrollments.count }}</span>
+                            </td>
+                            <td>{{ course.modules.count }}</td>
+                            <td>{{ course.modules.all|length }} modules</td>
+                            <td>
+                                <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="text-muted">No courses assigned yet. Contact admin to get courses assigned.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Enrollments</h5>
+        </div>
+        <div class="card-body">
+            {% if recent_enrollments %}
+            <div class="list-group">
+                {% for enrollment in recent_enrollments %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ enrollment.student.get_full_name|default:enrollment.student.username }}</h6>
+                        <small>{{ enrollment.enrollment_date|date:"M d, Y" }}</small>
+                    </div>
+                    <p class="mb-1">Enrolled in: <strong>{{ enrollment.course.title }}</strong></p>
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ enrollment.progress }}%"></div>
+                    </div>
+                    <small class="text-muted">Progress: {{ enrollment.progress|floatformat:0 }}%</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No recent enrollments.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

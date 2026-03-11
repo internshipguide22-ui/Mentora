@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate Detail{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h1 class="mb-0">Certificate of Completion</h1>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">{{ certificate.course.title }}</h2>
+            <p class="card-text">This certifies that</p>
+            <h3 class="card-text">{{ certificate.enrollment.student.get_full_name|default:certificate.enrollment.student.username }}</h3>
+            <p class="card-text">has successfully completed the course</p>
+            <h4 class="card-text">"{{ certificate.course.title }}"</h4>
+            <p class="card-text">on {{ certificate.date_issued|date:"F d, Y" }}.</p>
+            {% if certificate.course.instructor %}
+                <p class="card-text">Instructor: {{ certificate.course.instructor.get_full_name|default:certificate.course.instructor.username }}</p>
+            {% endif %}
+            <hr>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="{% url 'generate_certificate_pdf' certificate.id %}" class="btn btn-success">Download PDF</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Admin Dashboard</h1>
+    
+    <div class="admin-stats-grid mb-4">
+        <div>
+            <div class="card text-center bg-primary text-white dashboard-card">
+                <div class="card-body">
+                    <i class="fas fa-users fa-2x mb-2"></i>
+                    <h5 class="card-title">Total Users</h5>
+                    <h2 class="card-text">{{ total_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card text-center bg-success text-white dashboard-card">
+                <div class="card-body">
+                    <i class="fas fa-book fa-2x mb-2"></i>
+                    <h5 class="card-title">Total Courses</h5>
+                    <h2 class="card-text">{{ total_courses }}</h2>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card text-center bg-warning text-white dashboard-card">
+                <div class="card-body">
+                    <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                    <h5 class="card-title">Enrollments</h5>
+                    <h2 class="card-text">{{ total_enrollments }}</h2>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card text-center bg-info text-white dashboard-card">
+                <div class="card-body">
+                    <i class="fas fa-certificate fa-2x mb-2"></i>
+                    <h5 class="card-title">Certificates</h5>
+                    <h2 class="card-text">{{ total_certificates }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-tools"></i> Admin Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="admin-actions-grid">
+                <a href="{% url 'admin:index' %}" class="admin-btn admin-btn-blue">
+                    <i class="fas fa-cog"></i>
+                    <span>Admin Panel</span>
+                </a>
+                <a href="{% url 'analytics_dashboard' %}" class="admin-btn admin-btn-cyan">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{% url 'manage_users' %}" class="admin-btn admin-btn-green">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
+                </a>
+                <a href="{% url 'manage_courses' %}" class="admin-btn admin-btn-orange">
+                    <i class="fas fa-book"></i>
+                    <span>Manage Courses</span>
+                </a>
+                <a href="{% url 'courses:course_create' %}" class="admin-btn admin-btn-blue">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Course</span>
+                </a>
+                <a href="{% url 'manage_enrollments' %}" class="admin-btn admin-btn-gray">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Enrollments</span>
+                </a>
+                <a href="{% url 'manage_quizzes' %}" class="admin-btn admin-btn-red">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Quizzes</span>
+                </a>
+                <a href="{% url 'manage_certificates' %}" class="admin-btn admin-btn-purple">
+                    <i class="fas fa-certificate"></i>
+                    <span>Certificates</span>
+                </a>
+                <a href="{% url 'manage_reviews' %}" class="admin-btn admin-btn-teal">
+                    <i class="fas fa-star"></i>
+                    <span>Reviews</span>
+                </a>
+                <a href="{% url 'manage_categories' %}" class="admin-btn admin-btn-indigo">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+                <a href="{% url 'instructor_students_view' %}" class="admin-btn admin-btn-purple">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Students by Instructor</span>
+                </a>
+                <a href="{% url 'system_statistics' %}" class="admin-btn admin-btn-blue">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>System Statistics</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="admin-info-grid">
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">User Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr><td>Students:</td><td><strong>{{ total_students }}</strong></td></tr>
+                        <tr><td>Instructors:</td><td><strong>{{ total_instructors }}</strong></td></tr>
+                        <tr><td>Admins:</td><td><strong>{{ total_admins }}</strong></td></tr>
+                        <tr><td>Active Users:</td><td><strong>{{ active_users }}</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">System Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="fas fa-info-circle"></i> As an admin, you have full access to:</p>
+                    <ul>
+                        <li>Manage all users (create, edit, delete, assign roles)</li>
+                        <li>Manage all courses and lessons</li>
+                        <li>View student progress and analytics</li>
+                        <li>Manage certificates and quizzes</li>
+                        <li>Access system reports and analytics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

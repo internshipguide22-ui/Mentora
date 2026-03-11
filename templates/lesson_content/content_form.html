@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ object|yesno:'Edit,Add' }} Content{% endblock %}
+
+{% block content %}
+    <h1>{{ object|yesno:'Edit,Add' }} {{ form.instance.lesson.title }} Content</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}

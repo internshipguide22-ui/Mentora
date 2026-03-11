@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if choice %}Edit{% else %}Add{% endif %} Choice{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>{% if choice %}Edit{% else %}Add{% endif %} Choice</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="text" class="form-label">Choice Text</label>
+                            <input type="text" name="text" id="text" class="form-control" value="{{ choice.text|default:'' }}" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="is_correct" id="is_correct" class="form-check-input" {% if choice.is_correct %}checked{% endif %}>
+                            <label for="is_correct" class="form-check-label">This is the correct answer</label>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'quizzes:quiz_detail' choice.question.quiz.pk|default:question.quiz.pk %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Save Choice</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

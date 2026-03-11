@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify Certificate{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Certificate Verification</h1>
+    <div class="card">
+        <div class="card-body text-center">
+            {% if certificate %}
+                <h2 class="text-success">Certificate Valid!</h2>
+                <p>This certificate was issued to <strong>{{ certificate.enrollment.student.get_full_name }}</strong> for successfully completing the course <strong>{{ certificate.enrollment.course.title }}</strong>.</p>
+                <p>Issued on: {{ certificate.issued_date|date:"F d, Y" }}</p>
+                <p>Grade: {{ certificate.grade }}</p>
+                {% if certificate.image %}
+                    <img src="{{ certificate.image.url }}" alt="Certificate" class="img-fluid border rounded mt-3">
+                {% endif %}
+            {% else %}
+                <h2 class="text-danger">Certificate Invalid or Not Found.</h2>
+                <p>The certificate with the provided UUID could not be found or is invalid.</p>
+            {% endif %}
+            <div class="mt-4">
+                <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

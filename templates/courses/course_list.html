@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}All Courses - LMS{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+        <li class="breadcrumb-item active">Courses</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>All Courses</h1>
+        {% if user.is_authenticated and user.is_admin %}
+            <a href="{% url 'courses:course_create' %}" class="btn btn-primary">Create New Course</a>
+        {% endif %}
+    </div>
+
+    <form method="get" class="mb-4" style="max-width: 900px; margin: 0 auto 2rem;">
+        <div class="d-flex gap-2" style="flex-wrap: wrap;">
+            <input type="text" name="q" class="form-control" placeholder="Search courses..." value="{{ query }}" style="flex: 1; min-width: 200px;">
+            <select name="category" class="form-select" style="flex: 1; min-width: 150px;">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary" type="submit" style="min-width: 100px;"><i class="fas fa-search"></i> Filter</button>
+        </div>
+        {% if query or selected_category %}
+        <div class="mt-2 text-center">
+            <a href="{% url 'courses:course_list' %}" class="btn btn-secondary btn-sm">Clear Filters</a>
+        </div>
+        {% endif %}
+    </form>
+
+    <div class="course-grid">
+        {% for course in courses %}
+        <div>
+            <div class="card course-card">
+                {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <span class="badge bg-primary mb-2">{{ course.category.name|default:"General" }}</span>
+                    <h5 class="card-title"><a href="{% url 'courses:course_detail' course.id %}" class="text-decoration-none text-dark stretched-link">{{ course.title }}</a></h5>
+                    <p class="card-text">{{ course.description|truncatewords:20 }}</p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">Instructor: {{ course.instructor.username }}</small>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No courses available yet.</p>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">First</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a></li>
+            {% endif %}
+            
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Last</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

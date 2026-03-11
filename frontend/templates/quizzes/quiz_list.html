@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Quizzes</h1>
+
+    {% if user.is_authenticated and user.is_instructor %}
+    {% comment %} <a href="{% url 'quizzes:create_quiz' %}" class="btn btn-success mb-3">Create New Quiz</a> {% endcomment %}
+    {% endif %}
+
+    {% if quizzes %}
+    <div class="list-group">
+        {% for quiz in quizzes %}
+        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ quiz.title }}</h5>
+                <small>Created: {{ quiz.created_at|date:"M d, Y" }}</small>
+            </div>
+            <p class="mb-1">{{ quiz.description }}</p>
+            <small>Course: {{ quiz.course.title }}</small><br>
+            <small>Instructor: {{ quiz.instructor.get_full_name }}</small>
+
+            <div class="mt-2">
+                <a href="{% url 'quizzes:quiz_detail' quiz.id %}" class="btn btn-info btn-sm">View Details</a>
+                {% if user.is_authenticated and user.is_instructor and user == quiz.instructor %}
+                <a href="{% url 'quizzes:edit_quiz' quiz.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'quizzes:delete_quiz' quiz.id %}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No quizzes available yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

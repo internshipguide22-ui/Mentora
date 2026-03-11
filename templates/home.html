@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - LMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-4">Learn Anything, Anytime, Anywhere</h1>
+            <p class="lead mb-4">Our Learning Management System provides high-quality courses taught by industry experts. Start your learning journey today!</p>
+            <div class="d-flex gap-3" style="flex-wrap: wrap;">
+                <a href="{% url 'courses:course_list' %}" class="btn btn-primary btn-lg" style="min-width: 180px;">Browse Courses</a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg" style="min-width: 180px;">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://cdn.sanity.io/images/nosafynr/openlms-production/2892397ea759ce74319b9fb727c4216492120184-1250x1250.webp?w=1250&h=1250&auto=format" alt="Learning" class="img-fluid rounded shadow hero-image">
+        </div>
+    </div>
+
+    <!-- Featured Courses -->
+    <div class="mb-5">
+        <h2 class="text-center mb-4">All Courses</h2>
+        
+        <div class="course-grid" id="courseGrid">
+            {% for course in courses %}
+            <div class="course-item {% if forloop.counter > 6 %}hidden-course{% endif %}">
+                <div class="card course-card">
+                    {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" class="card-img-top" alt="{{ course.title }} Thumbnail">
+                    {% else %}
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Course Thumbnail">
+                    {% endif %}
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">{{ course.category.name|default:"General" }}</span>
+                        <h5 class="card-title"><a href="{% url 'courses:course_detail' course.id %}" class="text-decoration-none text-dark">{{ course.title }}</a></h5>
+                        <p class="card-text">{{ course.description|truncatewords:30 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ course.instructor.username }}</small>
+                        <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline-primary btn-sm">View Course</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center">No featured courses available.</p>
+            {% endfor %}
+        </div>
+        {% if courses|length > 6 %}
+        <div class="text-center mt-4">
+            <button id="toggleCoursesBtn" class="btn btn-primary btn-lg" onclick="toggleCourses()">
+                <i class="fas fa-plus-circle"></i> More Courses
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Features Section -->
+    <div class="mb-5">
+        <h2 class="text-center mb-4">Why Choose Our LMS?</h2>
+        <div class="features-grid">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-laptop-code fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">Expert Instructors</h4>
+                    <p class="card-text">Learn from industry professionals with years of experience in their fields.</p>
+                </div>
+            </div>
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-certificate fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">Earn Certificates</h4>
+                    <p class="card-text">Get recognized for your achievements with our verified certificates.</p>
+                </div>
+            </div>
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-clock fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="card-title">Learn at Your Pace</h4>
+                    <p class="card-text">Access course materials anytime and learn at your own convenience.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div>
+        <h2 class="text-center mb-4">What Our Students Say</h2>
+        <div class="features-grid">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="card-text">"The courses are well-structured and the instructors are very knowledgeable. I've learned so much in such a short time!"</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex align-items-center">
+                        <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Student">
+                        <div>
+                            <h6 class="mb-0">John Doe</h6>
+                            <small class="text-muted">Web Development Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="card-text">"The flexibility of this platform allowed me to learn while working full-time. The certificate helped me land my dream job!"</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex align-items-center">
+                        <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Student">
+                        <div>
+                            <h6 class="mb-0">Jane Smith</h6>
+                            <small class="text-muted">Data Science Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3 text-warning">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="card-text">"The quizzes and practical assignments really helped reinforce what I learned. The instructor support was exceptional!"</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="d-flex align-items-center">
+                        <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="Student">
+                        <div>
+                            <h6 class="mb-0">Robert Johnson</h6>
+                            <small class="text-muted">Mobile App Development Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleCourses() {
+    const hiddenCourses = document.querySelectorAll('.hidden-course');
+    const btn = document.getElementById('toggleCoursesBtn');
+    const isHidden = hiddenCourses[0].style.display === 'none' || hiddenCourses[0].style.display === '';
+    
+    hiddenCourses.forEach(course => {
+        course.style.display = isHidden ? 'block' : 'none';
+    });
+    
+    if (isHidden) {
+        btn.innerHTML = '<i class="fas fa-minus-circle"></i> Show Less';
+    } else {
+        btn.innerHTML = '<i class="fas fa-plus-circle"></i> More Courses';
+    }
+}
+</script>
+{% endblock %}

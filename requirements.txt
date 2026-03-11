@@ -1,0 +1,7 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+django-widget-tweaks
+pillow
+reportlab
+openpyxl
