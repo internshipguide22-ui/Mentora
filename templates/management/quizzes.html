@@ -48,9 +48,9 @@
                     {% for quiz in quizzes %}
                     <tr>
                         <td><strong>{{ quiz.title }}</strong></td>
-                        <td><small>{{ quiz.lesson.module.course.title }}</small></td>
-                        <td><small>{{ quiz.lesson.module.title }}</small></td>
-                        <td><small>{{ quiz.lesson.title }}</small></td>
+                        <td><small>{{ quiz.module.course.title }}</small></td>
+                        <td><small>{{ quiz.module.title }}</small></td>
+                        <td><small class="text-muted">Module-level quiz</small></td>
                         <td><small>{{ quiz.instructor.get_full_name|default:quiz.instructor.username }}</small></td>
                         <td class="text-center"><span class="badge bg-info">{{ quiz.questions.count }}</span></td>
                         <td class="text-center">

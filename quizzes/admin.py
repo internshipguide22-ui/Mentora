@@ -14,16 +14,16 @@ class QuestionInline(admin.StackedInline):
 
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
-    list_display = ('title', 'lesson', 'instructor', 'question_count', 'is_published', 'created_at')
+    list_display = ('title', 'module', 'instructor', 'question_count', 'is_published', 'created_at')
     list_filter = ('is_published', 'instructor', 'created_at')
-    search_fields = ('title', 'description', 'lesson__title')
+    search_fields = ('title', 'description', 'module__title')
     date_hierarchy = 'created_at'
     inlines = [QuestionInline]
     readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'description', 'lesson', 'instructor')
+            'fields': ('title', 'description', 'module', 'instructor')
         }),
         ('Settings', {
             'fields': ('time_limit_minutes', 'passing_score', 'max_attempts', 'is_published')

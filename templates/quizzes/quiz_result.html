@@ -94,7 +94,7 @@
 
             <div class="mt-4">
                 <a href="{% url 'quizzes:quiz_detail' quiz.pk %}" class="btn btn-primary">Back to Quiz</a>
-                <a href="{% url 'courses:lesson_detail' quiz.lesson.pk %}" class="btn btn-secondary">Back to Lesson</a>
+                <a href="{% url 'courses:course_detail' quiz.module.course.pk %}" class="btn btn-secondary">Back to Course</a>
             </div>
         </div>
     </div>

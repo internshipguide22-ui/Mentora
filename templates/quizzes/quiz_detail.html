@@ -169,11 +169,11 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Course:</strong> {{ course.title }}</p>
-                    <p><strong>Lesson:</strong> {{ quiz.lesson.title }}</p>
+                    <p><strong>Module:</strong> {{ quiz.module.title }}</p>
                     <p><strong>Instructor:</strong> {{ quiz.instructor.get_full_name }}</p>
                     <hr>
-                    <a href="{% url 'courses:lesson_detail' quiz.lesson.pk %}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-arrow-left"></i> Back to Lesson
+                    <a href="{% url 'courses:course_detail' course.pk %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-arrow-left"></i> Back to Course
                     </a>
                 </div>
             </div>

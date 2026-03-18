@@ -105,7 +105,7 @@ def student_course_details(request, student_id, course_id):
             # Get quiz attempts for this lesson
             quiz_attempts = QuizAttempt.objects.filter(
                 student=student,
-                quiz__lesson=lesson
+                quiz__module=module
             ).order_by('-started_at')
             
             lessons.append({

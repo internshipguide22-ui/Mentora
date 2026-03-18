@@ -8,6 +8,7 @@ from accounts.decorators import instructor_required, student_required
 from .models import Quiz, Question, Choice, QuizAttempt, QuizResponse
 from .forms import QuizForm, QuestionForm
 from courses.models import Course, Enrollment
+from courses.progress import get_module_access_map
 
 @login_required
 @instructor_required
@@ -44,7 +45,7 @@ def edit_quiz(request, quiz_id):
 def delete_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id, instructor=request.user)
     if request.method == 'POST':
-        course_id = quiz.lesson.module.course.pk
+        course_id = quiz.module.course.pk
         quiz.delete()
         messages.success(request, "Quiz deleted successfully!")
         return redirect('courses:course_detail', pk=course_id)
@@ -53,7 +54,7 @@ def delete_quiz(request, quiz_id):
 @login_required
 def quiz_detail(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    course = quiz.lesson.module.course
+    course = quiz.module.course
     
     is_enrolled = Enrollment.objects.filter(student=request.user, course=course, is_active=True).exists()
     is_instructor = request.user == course.instructor
@@ -61,6 +62,12 @@ def quiz_detail(request, quiz_id):
     if not (is_enrolled or is_instructor or request.user.is_admin):
         messages.error(request, "You must be enrolled in this course to access quizzes.")
         return redirect('courses:course_detail', pk=course.pk)
+
+    if is_enrolled and request.user.is_student:
+        module_access, _ = get_module_access_map(course, request.user)
+        if not module_access.get(quiz.module_id, {'unlocked': True})['unlocked']:
+            messages.error(request, "Complete the previous module to unlock this one.")
+            return redirect('courses:course_detail', pk=course.pk)
     
     attempts = QuizAttempt.objects.filter(student=request.user, quiz=quiz).order_by('-started_at')
     attempts_count = attempts.count()
@@ -83,9 +90,13 @@ def quiz_detail(request, quiz_id):
 @student_required
 def take_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, pk=quiz_id)
-    course = quiz.lesson.module.course
+    course = quiz.module.course
     
     enrollment = get_object_or_404(Enrollment, student=request.user, course=course, is_active=True)
+    module_access, _ = get_module_access_map(course, request.user)
+    if not module_access.get(quiz.module_id, {'unlocked': True})['unlocked']:
+        messages.error(request, "Complete the previous module to unlock this one.")
+        return redirect('courses:course_detail', pk=course.pk)
     
     attempts_count = QuizAttempt.objects.filter(student=request.user, quiz=quiz).count()
     if attempts_count >= quiz.max_attempts:
@@ -160,11 +171,11 @@ def take_quiz(request, quiz_id):
         
         return redirect('quizzes:quiz_result', attempt_id=attempt.pk)
     
-    attempt = QuizAttempt.objects.create(student=request.user, quiz=quiz, attempt_number=attempts_count + 1)
+    # attempt = QuizAttempt.objects.create(student=request.user, quiz=quiz, attempt_number=attempts_count)
     context = {
         'quiz': quiz,
-        'attempt': attempt,
-        'attempts_remaining': quiz.max_attempts - attempts_count - 1,
+        # 'attempt': attempt,
+        'attempts_remaining': quiz.max_attempts - attempts_count,
     }
     return render(request, 'quizzes/take_quiz.html', context)
 
