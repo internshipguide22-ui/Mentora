@@ -11,7 +11,7 @@
                 <h3 class="mb-0">Create an Account</h3>
             </div>
             <div class="card-body" style="padding: 2rem;">
-                        <form method="post" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data" id="registerForm">
                             {% csrf_token %}
                             <div class="register-grid">
                                 <div class="form-group">
@@ -99,5 +99,6 @@ function togglePassword(fieldId) {
         icon.classList.add('fa-eye');
     }
 }
+
 </script>
 {% endblock %}

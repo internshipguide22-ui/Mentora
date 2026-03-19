@@ -9,6 +9,7 @@ from django.db import models
 
 from .models import Course, Lesson, Enrollment, Module, Category
 from .forms import CourseForm, LessonForm
+from .progress import get_module_access_map, get_completed_quiz_ids
 from accounts.decorators import student_required, instructor_required
 
 # A mixin to ensure that the user is an instructor
@@ -63,6 +64,9 @@ class CourseDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        modules = list(self.object.modules.prefetch_related('lessons', 'quizzes').all())
+        context['modules'] = modules
+
         if self.request.user.is_authenticated:
             enrollment = Enrollment.objects.filter(
                 course=self.object, student=self.request.user, is_active=True
@@ -72,17 +76,47 @@ class CourseDetailView(DetailView):
             
             # Get completed lessons and quizzes for tick marks
             if enrollment and self.request.user.is_student:
-                from lessons.models import LessonCompletion
-                from quizzes.models import QuizAttempt
-                context['completed_lessons'] = LessonCompletion.objects.filter(
-                    student=self.request.user
-                ).values_list('lesson_id', flat=True)
-                context['completed_quizzes'] = QuizAttempt.objects.filter(
-                    student=self.request.user, completed_at__isnull=False
-                ).values_list('quiz_id', flat=True)
+                module_access, completed_lessons = get_module_access_map(self.object, self.request.user)
+                completed_quizzes = get_completed_quiz_ids(self.object, self.request.user)
+                context['completed_lessons'] = completed_lessons
+                context['completed_quizzes'] = completed_quizzes
+
+                for module in modules:
+                    status = module_access.get(module.id, {'unlocked': True, 'completed': False})
+                    module.is_unlocked = status['unlocked']
+                    module.is_completed = status['completed']
+                    module.is_locked = not status['unlocked']
+
+                    for lesson in module.lessons.all():
+                        lesson.is_accessible = status['unlocked']
+
+                    for quiz in module.quizzes.all():
+                        quiz.is_accessible = status['unlocked']
+            else:
+                context['completed_lessons'] = set()
+                context['completed_quizzes'] = set()
+                for module in modules:
+                    module.is_unlocked = True
+                    module.is_completed = False
+                    module.is_locked = False
+                    for lesson in module.lessons.all():
+                        lesson.is_accessible = True
+                    for quiz in module.quizzes.all():
+                        quiz.is_accessible = True
+
         else:
             context['is_enrolled'] = False
             context['enrollment'] = None
+            context['completed_lessons'] = set()
+            context['completed_quizzes'] = set()
+            for module in modules:
+                module.is_unlocked = True
+                module.is_completed = False
+                module.is_locked = False
+                for lesson in module.lessons.all():
+                    lesson.is_accessible = True
+                for quiz in module.quizzes.all():
+                    quiz.is_accessible = True
         
         # Reviews
         from reviews.models import Review
@@ -256,6 +290,12 @@ def lesson_detail(request, pk):
     if not (is_enrolled or is_instructor or request.user.is_admin):
         messages.error(request, "You must be enrolled in this course to view lessons.")
         return redirect('courses:course_detail', pk=course.pk)
+
+    if is_enrolled and request.user.is_student:
+        module_access, _ = get_module_access_map(course, request.user)
+        if not module_access.get(lesson.module_id, {'unlocked': True})['unlocked']:
+            messages.error(request, "Complete the previous module to unlock this one.")
+            return redirect('courses:course_detail', pk=course.pk)
     
     # Get lesson completion status
     from lessons.models import LessonCompletion
@@ -263,11 +303,16 @@ def lesson_detail(request, pk):
     is_completed = LessonCompletion.objects.filter(student=request.user, lesson=lesson).exists()
     
     # Check if lesson has quizzes and if they're completed
-    lesson_quizzes = lesson.quizzes.all()
+    lesson_quizzes = lesson.module.quizzes.all()
     quizzes_completed = True
     if lesson_quizzes.exists():
         for quiz in lesson_quizzes:
-            if not QuizAttempt.objects.filter(student=request.user, quiz=quiz, completed_at__isnull=False).exists():
+            if not QuizAttempt.objects.filter(
+                student=request.user,
+                quiz=quiz,
+                completed_at__isnull=False,
+                passed=True,
+            ).exists():
                 quizzes_completed = False
                 break
     
@@ -381,7 +426,7 @@ def instructor_manage_all_students(request):
         
         quiz_attempts = QuizAttempt.objects.filter(
             student=enrollment.student,
-            quiz__lesson__module__course=enrollment.course
+            quiz__module__course=enrollment.course
         ).count()
         
         certificate = Certificate.objects.filter(enrollment=enrollment).first()

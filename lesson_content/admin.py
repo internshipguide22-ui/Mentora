@@ -15,8 +15,8 @@ class TextContentAdmin(admin.ModelAdmin):
 
 @admin.register(QuizContent)
 class QuizContentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'lesson', 'order')
-    list_filter = ('lesson',)
+    list_display = ('title', 'module', 'order')
+    list_filter = ('module',)
     search_fields = ('title',)
 
 @admin.register(AssignmentContent)

@@ -4,7 +4,7 @@ from .models import Quiz, Question, Choice
 class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title', 'description', 'lesson', 'time_limit_minutes', 'passing_score', 'max_attempts', 'is_published']
+        fields = ['title', 'description', 'module', 'time_limit_minutes', 'passing_score', 'max_attempts', 'is_published']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
@@ -13,8 +13,8 @@ class QuizForm(forms.ModelForm):
         instructor = kwargs.pop('instructor', None)
         super().__init__(*args, **kwargs)
         if instructor:
-            from courses.models import Lesson
-            self.fields['lesson'].queryset = Lesson.objects.filter(module__course__instructor=instructor)
+            from courses.models import Module
+            self.fields['module'].queryset = Module.objects.filter(course__instructor=instructor)
 
 class QuestionForm(forms.ModelForm):
     class Meta:

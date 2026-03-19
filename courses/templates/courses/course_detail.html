@@ -45,8 +45,10 @@
                                                 <a href="{% url 'lessons:lesson_delete' lesson.id %}" class="btn btn-sm btn-danger">Delete Lesson</a>
                                             {% endif %}
                                         </div>
+                                        <div>
+                                        </div>
                                     </li>
-                                {% endfor %}
+                                {% endfor %}                               
                             </ul>
                         {% else %}
                             <p>No lessons in this module yet.</p>

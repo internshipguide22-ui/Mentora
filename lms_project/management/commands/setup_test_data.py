@@ -20,7 +20,7 @@ class Command(BaseCommand):
             instructor, created = User.objects.get_or_create(
                 username='instructor',
                 email='instructor@example.com',
-                defaults={'role': 'INSTRUCTOR', 'is_staff': True, 'is_superuser': True}
+                defaults={'user_type': 'admin', 'is_staff': True, 'is_superuser': True}
             )
             if created:
                 instructor.set_password('password')
@@ -30,7 +30,7 @@ class Command(BaseCommand):
             student, created = User.objects.get_or_create(
                 username='student',
                 email='student@example.com',
-                defaults={'role': 'STUDENT'}
+                defaults={'user_type': 'student'}
             )
             if created:
                 student.set_password('password')
@@ -43,8 +43,7 @@ class Command(BaseCommand):
         # 2. Create Category
         self.stdout.write('Creating category...')
         category, created = Category.objects.get_or_create(
-            name='Programming',
-            slug='programming'
+            name='Programming'
         )
         self.stdout.write(self.style.SUCCESS(f'Category: {category.name}'))
 
@@ -55,10 +54,7 @@ class Command(BaseCommand):
             defaults={
                 'description': 'A comprehensive introduction to Python programming.',
                 'instructor': instructor,
-                'category': category,
-                'is_approved': True,
-                'is_published': True,
-                'price': 99.99
+                'category': category
             }
         )
         self.stdout.write(self.style.SUCCESS(f'Course: {course.title}'))

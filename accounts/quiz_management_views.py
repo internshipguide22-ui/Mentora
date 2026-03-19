@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from accounts.decorators import admin_required, instructor_required
 from quizzes.models import Quiz, Question, Choice
 from courses.models import Lesson
+from courses.models import Module
 
 @login_required
 def manage_quizzes(request):
@@ -21,12 +23,12 @@ def manage_quizzes(request):
     return render(request, 'management/quizzes.html', {'quizzes': quizzes, 'search': search})
 
 @login_required
-def create_quiz_for_lesson(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
+def create_quiz_for_lesson(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
     
-    if not (request.user.is_admin or request.user == lesson.module.course.instructor):
+    if not (request.user.is_admin or request.user == module.course.instructor):
         messages.error(request, 'You do not have permission to create quizzes for this lesson.')
-        return redirect('courses:lesson_detail', pk=lesson_id)
+        return redirect('courses:course_detail', pk=module.course.id)
     
     if request.method == 'POST':
         from django.utils.dateparse import parse_datetime
@@ -35,8 +37,8 @@ def create_quiz_for_lesson(request, lesson_id):
             title=request.POST.get('title'),
             description=request.POST.get('description', ''),
             instructions=request.POST.get('instructions', ''),
-            lesson=lesson,
-            instructor=lesson.module.course.instructor,
+            module=module,
+            instructor=module.course.instructor,
             start_date=parse_datetime(request.POST.get('start_date')) if request.POST.get('start_date') else None,
             end_date=parse_datetime(request.POST.get('end_date')) if request.POST.get('end_date') else None,
             time_limit_minutes=request.POST.get('time_limit', 30),
@@ -45,9 +47,10 @@ def create_quiz_for_lesson(request, lesson_id):
             is_published=True
         )
         messages.success(request, 'Quiz created successfully!')
-        return redirect('edit_quiz', quiz_id=quiz.id)
+        course_url = reverse('courses:course_detail', kwargs={'pk': module.course.id})
+        return redirect(f'{course_url}#module-{module.id}')
     
-    return render(request, 'management/create_quiz.html', {'lesson': lesson})
+    return render(request, 'management/create_quiz.html', {'module': module})
 
 @login_required
 def edit_quiz(request, quiz_id):
@@ -69,7 +72,8 @@ def edit_quiz(request, quiz_id):
         quiz.show_correct_answers = request.POST.get('show_correct_answers') == 'on'
         quiz.save()
         messages.success(request, 'Quiz updated successfully!')
-        return redirect('edit_quiz', quiz_id=quiz.id)
+        course_url = reverse('courses:course_detail', kwargs={'pk': quiz.module.course.id})
+        return redirect(f'{course_url}#module-{quiz.module.id}')
     
     return render(request, 'management/edit_quiz.html', {'quiz': quiz})
 

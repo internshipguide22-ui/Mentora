@@ -20,7 +20,7 @@ def generate_certificate_view(request, enrollment_id):
     )
     
     # Generate certificate PDF if it doesn't exist
-    if not certificate.file:
+    if not certificate.file or not certificate.file.name:
         certificate = generate_certificate(certificate)
         certificate.save()
         messages.success(request, "Certificate generated successfully!")

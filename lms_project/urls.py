@@ -43,7 +43,7 @@ urlpatterns = [
     path('manage/enrollments/<int:enrollment_id>/toggle/', toggle_enrollment, name='toggle_enrollment'),
     path('manage/enrollments/<int:enrollment_id>/complete/', mark_complete, name='mark_complete'),
     path('manage/quizzes/', manage_quizzes, name='manage_quizzes'),
-    path('manage/lesson/<int:lesson_id>/quiz/create/', create_quiz_for_lesson, name='create_quiz_for_lesson'),
+    path('manage/lesson/<int:module_id>/quiz/create/', create_quiz_for_lesson, name='create_quiz_for_lesson'),
     path('manage/quiz/<int:quiz_id>/edit/', edit_quiz, name='edit_quiz'),
     path('manage/quiz/<int:quiz_id>/delete/', delete_quiz, name='delete_quiz'),
     path('manage/quiz/<int:quiz_id>/question/add/', add_question, name='add_question'),
@@ -78,6 +78,9 @@ urlpatterns = [
     
     # Lessons
     path('lessons/', include('lessons.urls')),
+
+    # Search
+    path('', include('search.urls')),
 
     path('create-course/', TemplateView.as_view(template_name="base.html"), name='create_course'),
     path('my-quizzes/', TemplateView.as_view(template_name="base.html"), name='list_quizzes'),

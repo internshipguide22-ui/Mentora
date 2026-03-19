@@ -95,5 +95,6 @@ def generate_certificate(certificate):
 
     filename = f"certificate_{certificate.uuid}.pdf"
     certificate.file.save(filename, ContentFile(buffer.getvalue()), save=False)
+    buffer.close()
     
     return certificate

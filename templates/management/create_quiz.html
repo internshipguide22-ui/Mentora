@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">Create Quiz for {{ lesson.title }}</h1>
+    <h1 class="mb-4">Create Quiz for {{ module.title }}</h1>
     
     <div class="card">
         <div class="card-body">
@@ -38,7 +38,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Create Quiz</button>
-                <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'courses:course_detail' module.course.id %}" class="btn btn-secondary">Cancel</a>
             </form>
         </div>
     </div>

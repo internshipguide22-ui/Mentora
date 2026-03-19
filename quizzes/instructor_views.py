@@ -9,7 +9,7 @@ from courses.models import Course
 @instructor_required
 def instructor_assessments(request):
     courses = Course.objects.filter(instructor=request.user)
-    quizzes = Quiz.objects.filter(instructor=request.user).select_related('lesson__module__course')
+    quizzes = Quiz.objects.filter(instructor=request.user).select_related('module__course')
     
     total_quizzes = quizzes.count()
     total_attempts = QuizAttempt.objects.filter(quiz__in=quizzes).count()

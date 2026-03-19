@@ -7,8 +7,8 @@ from courses.models import Course, Category
 class CourseSearchAPITest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password')
-        self.category1 = Category.objects.create(name='Programming', slug='programming')
-        self.category2 = Category.objects.create(name='Design', slug='design')
+        self.category1 = Category.objects.create(name='Programming')
+        self.category2 = Category.objects.create(name='Design')
         self.course1 = Course.objects.create(
             title='Python Basics',
             description='Learn Python from scratch',

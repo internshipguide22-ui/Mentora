@@ -1,67 +1,59 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from functools import wraps
-from django.http import HttpResponseForbidden
 
 def instructor_required(function=None, redirect_field_name=None, login_url='login'):
     """
     Decorator for views that checks that the user is logged in and is an instructor,
     redirecting to the login page if necessary.
     """
-    def check_instructor(user):
-        if user.is_authenticated and user.is_instructor:
-            return True
-        messages.error(user.request, "You must be an instructor to access this page.")
-        return False
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.is_authenticated and request.user.is_instructor:
+                return view_func(request, *args, **kwargs)
+            messages.error(request, "You must be an instructor to access this page.")
+            return redirect(login_url)
+        return _wrapped_view
 
-    actual_decorator = user_passes_test(
-        check_instructor,
-        login_url=login_url,
-        redirect_field_name=redirect_field_name
-    )
     if function:
-        return actual_decorator(function)
-    return actual_decorator
+        return decorator(function)
+    return decorator
 
 def student_required(function=None, redirect_field_name=None, login_url='login'):
     """
     Decorator for views that checks that the user is logged in and is a student.
     """
-    def check_student(user):
-        if user.is_authenticated and user.is_student:
-            return True
-        messages.error(user.request, "You must be a student to access this page.")
-        return False
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.is_authenticated and request.user.is_student:
+                return view_func(request, *args, **kwargs)
+            messages.error(request, "You must be a student to access this page.")
+            return redirect(login_url)
+        return _wrapped_view
 
-    actual_decorator = user_passes_test(
-        check_student,
-        login_url=login_url,
-        redirect_field_name=redirect_field_name
-    )
     if function:
-        return actual_decorator(function)
-    return actual_decorator
+        return decorator(function)
+    return decorator
 
 def admin_required(function=None, redirect_field_name=None, login_url='login'):
     """
     Decorator for views that checks that the user is logged in and is an admin.
     """
-    def check_admin(user):
-        if user.is_authenticated and user.is_admin:
-            return True
-        messages.error(user.request, "You must be an admin to access this page.")
-        return False
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.is_authenticated and request.user.is_admin:
+                return view_func(request, *args, **kwargs)
+            messages.error(request, "You must be an admin to access this page.")
+            return redirect(login_url)
+        return _wrapped_view
 
-    actual_decorator = user_passes_test(
-        check_admin,
-        login_url=login_url,
-        redirect_field_name=redirect_field_name
-    )
     if function:
-        return actual_decorator(function)
-    return actual_decorator
+        return decorator(function)
+    return decorator
 
 def owns_course(view_func):
     """

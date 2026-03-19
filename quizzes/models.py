@@ -2,18 +2,21 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from courses.models import Lesson
+from courses.models import Module
 
 class Quiz(models.Model):
     """
     Quiz model for storing quiz information.
     """
     title = models.CharField(max_length=200)
-    lesson = models.ForeignKey(
-        Lesson,
+    module = models.ForeignKey(
+        Module,
         on_delete=models.CASCADE,
-        related_name='quizzes'
+        related_name='quizzes',
+        null=True,   # TEMP (we will remove later)
+        blank=True
     )
+
     instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -41,7 +44,7 @@ class Quiz(models.Model):
         return self.questions.count()
     
     def __str__(self):
-        return f"{self.title} - {self.lesson.title}"
+        return f"{self.title} - {self.title}"
 
 class Question(models.Model):
     """

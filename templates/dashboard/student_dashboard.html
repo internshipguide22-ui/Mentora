@@ -115,8 +115,12 @@
                             <h6 class="mb-1">{{ certificate.enrollment.course.title }}</h6>
                             <small class="text-muted">Issued: {{ certificate.issued_date|date:"M d, Y" }}</small>
                         </div>
+                        {% if certificate.file %}
                         <a href="{{ certificate.file.url }}" class="btn btn-sm btn-success" download>
                             <i class="fas fa-download"></i> Download
+                        {% else %}
+                        Certificate not generated
+                        {% endif %}
                         </a>
                     </div>
                 </div>
