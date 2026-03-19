@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
-from django.urls import reverse
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 
@@ -27,7 +26,7 @@ def register_view(request):
         form = UserRegisterForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
-            messages.success(request, f'Account created successfully! Please login with your credentials.')
+            messages.success(request, 'Account created successfully! Please contact admin.')
             
             # Create welcome notification
             try:
@@ -40,7 +39,7 @@ def register_view(request):
             except:
                 pass
             
-            return redirect('accounts:login')
+            return redirect('home')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

@@ -125,6 +125,11 @@
             </div>
             
             <div class="d-flex justify-content-between">
+                    {% if has_quizzes and not quizzes_completed %}
+                    <div class="alert alert-warning w-100 me-3 mb-0">
+                        Complete this module's quiz to unlock the next module.
+                    </div>
+                    {% endif %}
                     {% if not is_completed %}
                     <form method="post" action="{% url 'courses:lesson_complete' lesson.pk %}">
                         {% csrf_token %}

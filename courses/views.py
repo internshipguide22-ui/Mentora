@@ -307,7 +307,12 @@ def lesson_detail(request, pk):
     quizzes_completed = True
     if lesson_quizzes.exists():
         for quiz in lesson_quizzes:
-            if not QuizAttempt.objects.filter(student=request.user, quiz=quiz, completed_at__isnull=False).exists():
+            if not QuizAttempt.objects.filter(
+                student=request.user,
+                quiz=quiz,
+                completed_at__isnull=False,
+                passed=True,
+            ).exists():
                 quizzes_completed = False
                 break
     
