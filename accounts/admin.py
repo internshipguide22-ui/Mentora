@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, RegistrationRequest
 from django.utils.html import format_html
-from django.urls import reverse
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db.models import Count, Q
 
 class CustomUserAdmin(UserAdmin):
@@ -76,5 +77,68 @@ class CustomUserAdmin(UserAdmin):
         count = queryset.update(is_active=False)
         self.message_user(request, f'{count} users deactivated.')
     deactivate_users.short_description = 'Deactivate selected users'
+
+@admin.register(RegistrationRequest)
+class RegistrationRequestAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'phone', 'status', 'submitted_at')
+    list_filter = ('status', 'submitted_at')
+    search_fields = ('name', 'email', 'phone')
+    ordering = ('-submitted_at',)
+    readonly_fields = ('submitted_at',)
+    actions = ['mark_processed', 'mark_rejected']
+
+    def _send_registration_email(self, obj):
+        registration_url = f"{settings.SITE_URL}/accounts/register/"
+        subject = 'Registration Approved - Complete Your LMS Registration'
+        message = f'''Dear {obj.name},
+
+Your registration request has been approved.
+
+Please complete your registration using the link below:
+{registration_url}
+
+Best regards,
+LMS Team
+'''
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [obj.email],
+            fail_silently=False,
+        )
+
+    def mark_processed(self, request, queryset):
+        updated = 0
+        emailed = 0
+        for obj in queryset:
+            obj.status = 'processed'
+            if not obj.email_sent:
+                self._send_registration_email(obj)
+                obj.email_sent = True
+                emailed += 1
+            obj.save(update_fields=['status', 'email_sent'])
+            updated += 1
+        self.message_user(request, f"{updated} registration request(s) marked processed. Registration email sent to {emailed} user(s).")
+    mark_processed.short_description = 'Mark selected registration requests as processed'
+
+    def mark_rejected(self, request, queryset):
+        updated = queryset.update(status='rejected')
+        self.message_user(request, f"{updated} registration request(s) marked rejected.")
+    mark_rejected.short_description = 'Mark selected registration requests as rejected'
+
+    def save_model(self, request, obj, form, change):
+        should_send_email = change and obj.status != 'rejected' and not obj.email_sent
+        if should_send_email:
+            obj.status = 'processed'
+        super().save_model(request, obj, form, change)
+
+        if should_send_email:
+            self._send_registration_email(obj)
+            obj.email_sent = True
+            obj.save(update_fields=['email_sent'])
+            self.message_user(request, f"Registration link sent to {obj.email}.")
+
 
 admin.site.register(User, CustomUserAdmin)

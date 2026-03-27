@@ -6,13 +6,15 @@ from django.db.models import Count, Avg, Q
 from django.utils import timezone
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.core.mail import send_mail
+from django.conf import settings
 
 from .forms import (
     UserRegisterForm, UserProfileForm, CustomAuthenticationForm,
     InstructorProfileForm, AdminProfileForm
 )
 from .decorators import student_required, instructor_required, admin_required
-from .models import User
+from .models import User, RegistrationRequest
 from courses.models import Course, Enrollment, Module, Lesson
 from quizzes.models import Quiz, QuizAttempt
 from certificates.models import Certificate
@@ -21,12 +23,42 @@ from notifications.models import Notification
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('accounts:dashboard')
-        
+
+    show_user_type = request.user.is_authenticated and request.user.is_admin
+
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST, request.FILES)
+        form = UserRegisterForm(request.POST, request.FILES, show_user_type=show_user_type)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Account created successfully! Please contact admin.')
+            try:
+                login_url = f"{settings.SITE_URL}/accounts/login/"
+                message = f'''Dear {user.first_name or user.username},
+
+Your LMS account has been created successfully.
+
+Login credentials:
+- Username: {user.username}
+- Email: {user.email}
+- Password: The password you created during registration
+
+Login here:
+{login_url}
+
+Best regards,
+LMS Team
+'''
+
+                send_mail(
+                    'Your LMS Login Credentials',
+                    message,
+                    getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@lms.com'),
+                    [user.email],
+                    fail_silently=False,
+                )
+            except Exception:
+                pass
+
+            messages.success(request, 'Account created successfully! Login credentials have been sent to your email.')
             
             # Create welcome notification
             try:
@@ -43,9 +75,64 @@ def register_view(request):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = UserRegisterForm()
+        form = UserRegisterForm(show_user_type=show_user_type)
     
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'registration/register.html', {
+        'form': form,
+        'show_user_type': show_user_type,
+    })
+
+
+def registration_request_view(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if not all([name, email, phone]):
+            message = 'All fields are required.'
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': message
+                })
+            messages.error(request, message)
+            return redirect('home')
+        
+        try:
+            # Record the request to DB for admin review
+            RegistrationRequest.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                status='pending'
+            )
+
+            success_message = 'Registration request submitted successfully!'
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': success_message
+                })
+            messages.success(request, success_message)
+            return redirect('home')
+            
+        except Exception as e:
+            error_message = 'Failed to send email. Please try again later.'
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': error_message
+                })
+            messages.error(request, error_message)
+            return redirect('home')
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request.'
+    }, status=400)
+
 
 @login_required
 def profile_view(request):
@@ -91,6 +178,8 @@ def dashboard_view(request):
             'total_courses': Course.objects.count(),
             'total_enrollments': Enrollment.objects.count(),
             'total_certificates': Certificate.objects.count(),
+            'total_registration_requests': RegistrationRequest.objects.count(),
+            'pending_registration_requests': RegistrationRequest.objects.filter(status='pending').count(),
             'recent_users': User.objects.order_by('-date_joined')[:5],
             'recent_courses': Course.objects.order_by('-created_at')[:5],
             'user_types': User.objects.values('user_type').annotate(count=Count('id')),

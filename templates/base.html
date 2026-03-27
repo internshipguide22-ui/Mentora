@@ -117,26 +117,48 @@
                 </div>
                 {% else %}
                 <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
-                <a class="btn-register" href="#" onclick="openContactAdminModal(event)">Register</a>
+                <a class="btn-register" href="#" onclick="openRegistrationModal(event)">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
     <div class="overlay" id="overlay"></div>
-    <div class="contact-admin-modal" id="contactAdminModal" aria-hidden="true">
-        <div class="contact-admin-dialog" role="dialog" aria-modal="true" aria-labelledby="contactAdminTitle">
+    <div class="contact-admin-modal" id="registrationModal" aria-hidden="true">
+        <div class="contact-admin-dialog" role="dialog" aria-modal="true" aria-labelledby="registrationTitle">
             <div class="contact-admin-header">
-                <h4 id="contactAdminTitle">Contact Admin</h4>
-                <button type="button" class="contact-admin-close" onclick="closeContactAdminModal()" aria-label="Close">
+                <h4 id="registrationTitle">Register for Access</h4>
+                <button type="button" class="contact-admin-close" onclick="closeRegistrationModal()" aria-label="Close">
                     &times;
                 </button>
             </div>
             <div class="contact-admin-body">
-                <p>Please contact admin to register for access.</p>
+                <form id="registrationForm" method="post" action="{% url 'accounts:registration_request' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Full Name *</label>
+                        <input type="text" name="name" class="form-control" id="id_name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email Address *</label>
+                        <input type="email" name="email" class="form-control" id="id_email" placeholder="Enter your email address" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_phone" class="form-label">Phone Number *</label>
+                        <input type="text" name="phone" class="form-control" id="id_phone" placeholder="Enter your phone number" required>
+                    </div>
+                    <div id="registrationMessage" class="mt-3" style="display: none;"></div>
+                </form>
             </div>
             <div class="contact-admin-actions">
-                <button type="button" class="btn btn-primary" onclick="closeContactAdminModal()">OK</button>
+                <button type="button" class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
+                <div style="display: inline-block; width: 10px;"></div>
+                <button type="submit" form="registrationForm" class="btn btn-primary" id="submitBtn">
+                    <span id="submitText">Submit</span>
+                    <span id="submitSpinner" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Submitting...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -172,6 +194,21 @@
     </footer>
     
     <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function toggleMenu() {
         const menu = document.getElementById('navbarMenu');
         const overlay = document.getElementById('overlay');
@@ -187,21 +224,62 @@
         dropdown.classList.toggle('active');
     }
 
-    function openContactAdminModal(event) {
+    function openRegistrationModal(event) {
         event.preventDefault();
-        const modal = document.getElementById('contactAdminModal');
+        const modal = document.getElementById('registrationModal');
         if (modal) {
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
         }
     }
 
-    function closeContactAdminModal() {
-        const modal = document.getElementById('contactAdminModal');
+    function closeRegistrationModal() {
+        const modal = document.getElementById('registrationModal');
         if (modal) {
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
+            // Reset form
+            document.getElementById('registrationForm').reset();
+            document.getElementById('registrationMessage').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitText').style.display = 'inline';
+            document.getElementById('submitSpinner').style.display = 'none';
         }
+    }
+
+    function showPageAlert(type, message) {
+        const alertContainer = document.querySelector('main .container.mt-2');
+        if (!alertContainer) return;
+
+        const iconMap = {
+            success: 'check-circle',
+            error: 'exclamation-circle',
+            danger: 'exclamation-circle',
+            warning: 'exclamation-triangle'
+        };
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <i class="fas fa-${iconMap[type] || 'info-circle'}"></i>
+            ${message}
+            <button class="alert-close" type="button">x</button>
+        `;
+
+        const closeButton = alert.querySelector('.alert-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', function() {
+                alert.remove();
+            });
+        }
+
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+
+        setTimeout(function() {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
     }
     
     document.addEventListener('DOMContentLoaded', function() {
@@ -213,9 +291,9 @@
                 dropdown.classList.remove('active');
             }
 
-            const modal = document.getElementById('contactAdminModal');
+            const modal = document.getElementById('registrationModal');
             if (modal && e.target === modal) {
-                closeContactAdminModal();
+                closeRegistrationModal();
             }
         });
         
@@ -226,18 +304,71 @@
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeContactAdminModal();
+                closeRegistrationModal();
             }
         });
         
-        // Auto-dismiss alerts after 5 seconds
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 300);
-            }, 5000);
-        });
+        // Handle registration form submission
+        const registrationForm = document.getElementById('registrationForm');
+        if (registrationForm) {
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitBtn');
+                const submitText = document.getElementById('submitText');
+                const submitSpinner = document.getElementById('submitSpinner');
+                const messageDiv = document.getElementById('registrationMessage');
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitText.style.display = 'none';
+                submitSpinner.style.display = 'inline';
+                messageDiv.style.display = 'none';
+                
+                // Submit form via AJAX
+                const formData = new FormData(this);
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
+
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                }
+
+                fetch("{% url 'accounts:registration_request' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeRegistrationModal();
+                        showPageAlert('success', data.message);
+                    } else {
+                        messageDiv.className = 'alert alert-danger mt-3';
+                        messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                        messageDiv.style.display = 'block';
+                        
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitText.style.display = 'inline';
+                        submitSpinner.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    messageDiv.className = 'alert alert-danger mt-3';
+                    messageDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> An error occurred. Please try again.';
+                    messageDiv.style.display = 'block';
+                    
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitText.style.display = 'inline';
+                    submitSpinner.style.display = 'none';
+                });
+            });
+        }
     });
     </script>
     {% block extra_js %}{% endblock %}

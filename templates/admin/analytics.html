@@ -41,10 +41,22 @@
             <p>Total Enrollments</p>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
         <div class="card" style="background: #9C27B0; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
             <h3>{{ total_certificates }}</h3>
             <p>Certificates Issued</p>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card" style="background: #673AB7; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ total_registration_requests|default:0 }}</h3>
+            <p>Total Registration Requests</p>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card" style="background: #E91E63; color: white; padding: 20px; margin: 10px; border-radius: 8px;">
+            <h3>{{ pending_registration_requests|default:0 }}</h3>
+            <p>Pending Registration Requests</p>
         </div>
     </div>
 </div>
@@ -106,6 +118,38 @@
                 <tr>
                     <td>{{ course.title }}</td>
                     <td><strong>{{ course.enrollment_count }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row" style="margin: 20px 0;">
+    <div class="col-md-12">
+        <h2>Recent Registration Requests</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in recent_registration_requests %}
+                <tr>
+                    <td>{{ req.name }}</td>
+                    <td>{{ req.email }}</td>
+                    <td>{{ req.phone }}</td>
+                    <td>{{ req.get_status_display }}</td>
+                    <td>{{ req.submitted_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No registration requests yet.</td>
                 </tr>
                 {% endfor %}
             </tbody>

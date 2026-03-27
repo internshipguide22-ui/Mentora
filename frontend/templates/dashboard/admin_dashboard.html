@@ -56,6 +56,16 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-dark h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Registration Requests</h5>
+                    <p class="card-text display-4">{{ total_registration_requests|default:0 }}</p>
+                    <p class="card-text">Pending: <strong>{{ pending_registration_requests|default:0 }}</strong></p>
+                    <a href="/admin/accounts/registrationrequest/" class="btn btn-light btn-sm">Review requests</a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h2 class="mt-4 mb-3">Management</h2>
@@ -63,6 +73,8 @@
         <a href="#" class="list-group-item list-group-item-action">Manage Users</a>
         <a href="#" class="list-group-item list-group-item-action">Manage Courses</a>
         <a href="#" class="list-group-item list-group-item-action">Manage Enrollments</a>
+        <a href="/admin/accounts/registrationrequest/?status__exact=pending" class="list-group-item list-group-item-action">Approve Registration Requests</a>
+        <a href="/admin/accounts/registrationrequest/" class="list-group-item list-group-item-action">Review Registration Requests</a>
         <a href="#" class="list-group-item list-group-item-action">View Site Analytics</a>
     </div>
 </div>

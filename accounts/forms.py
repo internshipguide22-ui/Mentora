@@ -25,10 +25,24 @@ class UserRegisterForm(UserCreationForm):
                  'phone', 'date_of_birth', 'profile_picture')
         
     def __init__(self, *args, **kwargs):
+        self.show_user_type = kwargs.pop('show_user_type', False)
         super().__init__(*args, **kwargs)
+        if not self.show_user_type:
+            self.fields.pop('user_type', None)
         for field in self.fields:
             if not isinstance(self.fields[field].widget, (forms.CheckboxInput, forms.RadioSelect)):
                 self.fields[field].widget.attrs['class'] = 'form-control'
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if self.show_user_type:
+            user.user_type = self.cleaned_data.get('user_type', 'student')
+        else:
+            user.user_type = 'student'
+        if commit:
+            user.save()
+            self.save_m2m()
+        return user
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

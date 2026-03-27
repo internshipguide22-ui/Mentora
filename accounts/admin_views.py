@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count, Avg
-from accounts.models import User
+from accounts.models import User, RegistrationRequest
 from courses.models import Course, Enrollment
 from quizzes.models import Quiz, QuizAttempt
 from certificates.models import Certificate
@@ -25,9 +25,13 @@ def admin_analytics(request):
         'completed_quizzes': QuizAttempt.objects.filter(completed_at__isnull=False).count(),
         
         'total_certificates': Certificate.objects.count(),
-        
+
+        'total_registration_requests': RegistrationRequest.objects.count(),
+        'pending_registration_requests': RegistrationRequest.objects.filter(status='pending').count(),
+
         'recent_users': User.objects.order_by('-date_joined')[:5],
         'recent_enrollments': Enrollment.objects.select_related('student', 'course').order_by('-enrollment_date')[:5],
         'popular_courses': Course.objects.annotate(enrollment_count=Count('enrollments')).order_by('-enrollment_count')[:5],
+        'recent_registration_requests': RegistrationRequest.objects.order_by('-submitted_at')[:5],
     }
     return render(request, 'admin/analytics.html', context)

@@ -54,11 +54,13 @@
                                     </div>
                                     {% for error in form.password2.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                                 </div>
+                                {% if show_user_type and form.user_type %}
                                 <div class="form-group">
                                     <label class="form-label">{{ form.user_type.label }}</label>
                                     {{ form.user_type|add_class:'form-select' }}
                                     {% for error in form.user_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
                                 </div>
+                                {% endif %}
                                 <div class="form-group">
                                     <label class="form-label">{{ form.phone.label }}</label>
                                     {{ form.phone|add_class:'form-control' }}
