@@ -29,6 +29,23 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
+class CourseNote(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='notes')
+    title = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='course_notes/')
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='uploaded_course_notes'
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.title or self.file.name
+
 class Enrollment(models.Model):
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,

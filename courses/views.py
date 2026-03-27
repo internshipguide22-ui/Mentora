@@ -7,8 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.db import models
 
-from .models import Course, Lesson, Enrollment, Module, Category
-from .forms import CourseForm, LessonForm
+from .models import Course, Lesson, Enrollment, Module, Category, CourseNote
+from .forms import CourseForm, LessonForm, CourseNoteForm
 from .progress import get_module_access_map, get_completed_quiz_ids
 from accounts.decorators import student_required, instructor_required
 
@@ -123,6 +123,13 @@ class CourseDetailView(DetailView):
         reviews = self.object.reviews.all()
         context['reviews'] = reviews
         context['avg_rating'] = reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0
+        context['course_notes'] = self.object.notes.select_related('uploaded_by').all()
+        context['can_upload_notes'] = (
+            self.request.user.is_authenticated and
+            (self.request.user == self.object.instructor or self.request.user.is_admin)
+        )
+        if context['can_upload_notes']:
+            context['note_form'] = CourseNoteForm()
         if self.request.user.is_authenticated:
             context['user_review'] = reviews.filter(student=self.request.user).first()
         return context
@@ -402,6 +409,32 @@ def create_module(request, course_pk):
         'module_count': Module.objects.filter(course=course).count()
     }
     return render(request, 'courses/module_form.html', context)
+
+
+@login_required
+def upload_course_note(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+
+    if not (request.user == course.instructor or request.user.is_admin):
+        messages.error(request, "You don't have permission to upload notes for this course.")
+        return redirect('courses:course_detail', pk=course.pk)
+
+    if request.method != 'POST':
+        return redirect('courses:course_detail', pk=course.pk)
+
+    form = CourseNoteForm(request.POST, request.FILES)
+    if form.is_valid():
+        course_note = form.save(commit=False)
+        course_note.course = course
+        course_note.uploaded_by = request.user
+        if not course_note.title:
+            course_note.title = course_note.file.name.split('/')[-1]
+        course_note.save()
+        messages.success(request, "Course note uploaded successfully.")
+    else:
+        messages.error(request, "Could not upload note. Please check the form and file.")
+
+    return redirect('courses:course_detail', pk=course.pk)
 
 @login_required
 @instructor_required

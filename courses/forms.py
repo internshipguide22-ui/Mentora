@@ -1,5 +1,5 @@
 from django import forms
-from .models import Course, Lesson
+from .models import Course, Lesson, CourseNote
 from accounts.models import User
 
 class CourseForm(forms.ModelForm):
@@ -59,3 +59,16 @@ class LessonForm(forms.ModelForm):
             from .models import Module
             self.fields['module'].queryset = Module.objects.filter(course=course)
             self.fields['module'].required = True
+
+
+class CourseNoteForm(forms.ModelForm):
+    class Meta:
+        model = CourseNote
+        fields = ['title', 'file']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Optional title for this note',
+                'class': 'form-control'
+            }),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

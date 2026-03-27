@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import Course, Enrollment, Module, Lesson, Category
+from .models import Course, Enrollment, Module, Lesson, Category, CourseNote
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -339,3 +339,10 @@ class EnrollmentAdmin(admin.ModelAdmin):
         count = queryset.update(is_active=False)
         self.message_user(request, f'{count} enrollments deactivated.')
     deactivate_enrollments.short_description = 'Deactivate enrollments'
+
+
+@admin.register(CourseNote)
+class CourseNoteAdmin(admin.ModelAdmin):
+    list_display = ('title', 'course', 'uploaded_by', 'uploaded_at')
+    list_filter = ('course', 'uploaded_at')
+    search_fields = ('title', 'course__title', 'uploaded_by__username')
