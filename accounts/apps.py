@@ -7,3 +7,4 @@ class AccountsConfig(AppConfig):
     
     def ready(self):
         import accounts.admin
+        import accounts.signals

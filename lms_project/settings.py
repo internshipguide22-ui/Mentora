@@ -187,27 +187,31 @@ MEDIA_ROOT = BASE_DIR / 'media'
 SITE_URL = 'http://127.0.0.1:8000'
 
 # Email Configuration
-# For development: prints emails to console
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# You can set these directly in code for local testing.
+# Replace the placeholder values below with your real sender email and app password.
+CODE_EMAIL_HOST_USER = 'lmsmentora@gmail.com'
+CODE_EMAIL_HOST_PASSWORD = 'nuodwezonofvfowq'
+CODE_DEFAULT_FROM_EMAIL = 'lmsmentora@gmail.com'
 
-# For production: uncomment below and add your email credentials
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'  # Your Gmail address
-# EMAIL_HOST_PASSWORD = 'your-app-password'  # Gmail App Password (not regular password)
-# DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') or CODE_EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') or CODE_EMAIL_HOST_PASSWORD
+DEFAULT_FROM_EMAIL = (
+    os.getenv('DEFAULT_FROM_EMAIL')
+    or CODE_DEFAULT_FROM_EMAIL
+    or EMAIL_HOST_USER
+    or 'noreply@lms.com'
+)
+
+# Use SMTP only when credentials are configured; otherwise keep development safe.
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

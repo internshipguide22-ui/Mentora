@@ -7,7 +7,7 @@ app_name = 'accounts'
 urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('registration-request/', views.registration_request_view, name='registration_request'),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page=reverse_lazy('home')), name='logout'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
 

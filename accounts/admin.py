@@ -128,17 +128,5 @@ LMS Team
         self.message_user(request, f"{updated} registration request(s) marked rejected.")
     mark_rejected.short_description = 'Mark selected registration requests as rejected'
 
-    def save_model(self, request, obj, form, change):
-        should_send_email = change and obj.status != 'rejected' and not obj.email_sent
-        if should_send_email:
-            obj.status = 'processed'
-        super().save_model(request, obj, form, change)
-
-        if should_send_email:
-            self._send_registration_email(obj)
-            obj.email_sent = True
-            obj.save(update_fields=['email_sent'])
-            self.message_user(request, f"Registration link sent to {obj.email}.")
-
 
 admin.site.register(User, CustomUserAdmin)
