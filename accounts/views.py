@@ -20,6 +20,7 @@ from courses.models import Course, Enrollment, Module, Lesson
 from quizzes.models import Quiz, QuizAttempt
 from certificates.models import Certificate
 from notifications.models import Notification
+from reviews.models import Review
 
 
 class CustomLoginView(LoginView):
@@ -254,6 +255,9 @@ def dashboard_view(request):
     else:
         # Student Dashboard Data
         enrollments = request.user.enrollments.select_related('course').all()
+        reviewed_course_ids = set(
+            Review.objects.filter(student=request.user).values_list('course_id', flat=True)
+        )
         context.update({
             'enrollments': enrollments,
             'completed_courses': enrollments.filter(completed=True).count(),
@@ -267,7 +271,8 @@ def dashboard_view(request):
             'course_progress': {
                 enrollment.id: enrollment.progress 
                 for enrollment in enrollments
-            }
+            },
+            'reviewed_course_ids': reviewed_course_ids,
         })
         template = 'dashboard/student_dashboard.html'
     

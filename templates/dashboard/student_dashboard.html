@@ -68,9 +68,21 @@
                             </div>
                             {% if enrollment.completed %}
                             <span class="badge bg-success mb-2">Completed</span>
+                            {% if enrollment.course.id in reviewed_course_ids %}
                             <a href="{% url 'certificates:generate' enrollment.id %}" class="btn btn-sm btn-success w-100 mb-2">
                                 <i class="fas fa-certificate"></i> Get Certificate
                             </a>
+                            {% else %}
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-success w-100 mb-2 certificate-feedback-trigger"
+                                data-course-id="{{ enrollment.course.id }}"
+                                data-course-title="{{ enrollment.course.title }}"
+                                data-next-url="{% url 'certificates:generate' enrollment.id %}"
+                            >
+                                <i class="fas fa-certificate"></i> Get Certificate
+                            </button>
+                            {% endif %}
                             <a href="{% url 'courses:course_detail' enrollment.course.pk %}" class="btn btn-sm btn-outline-primary w-100">
                                 <i class="fas fa-eye"></i> View Course
                             </a>
@@ -130,4 +142,164 @@
     </div>
     {% endif %}
 </div>
+
+{% if enrollments %}
+<div class="certificate-feedback-modal" id="certificateFeedbackModal" aria-hidden="true">
+    <div class="certificate-feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="certificateFeedbackModalLabel">
+        <div class="certificate-feedback-content">
+            <form method="post" id="certificateFeedbackForm">
+                {% csrf_token %}
+                <div class="certificate-feedback-header">
+                    <h5 class="modal-title" id="certificateFeedbackModalLabel">Share Feedback Before Certificate</h5>
+                    <button type="button" class="certificate-feedback-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="certificate-feedback-body">
+                    <p class="text-muted mb-3">Tell us how your course experience was before downloading your certificate.</p>
+                    <p class="fw-semibold mb-3" id="certificateFeedbackCourseTitle"></p>
+                    <input type="hidden" name="next" id="certificateFeedbackNextUrl">
+                    <div class="mb-3">
+                        <label for="certificateFeedbackRating" class="form-label">Rating</label>
+                        <select name="rating" id="certificateFeedbackRating" class="form-select" required>
+                            <option value="">Select rating</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label for="certificateFeedbackComment" class="form-label">Feedback</label>
+                        <textarea
+                            name="comment"
+                            id="certificateFeedbackComment"
+                            class="form-control"
+                            rows="4"
+                            placeholder="What did you like? What could be improved?"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="certificate-feedback-footer">
+                    <button type="button" class="btn btn-outline-secondary certificate-feedback-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Feedback & Get Certificate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+{% if enrollments %}
+<style>
+.certificate-feedback-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 1300;
+    padding: 1rem;
+}
+
+.certificate-feedback-modal.active {
+    display: flex;
+}
+
+.certificate-feedback-dialog {
+    width: min(100%, 560px);
+}
+
+.certificate-feedback-content {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.certificate-feedback-header,
+.certificate-feedback-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.certificate-feedback-header {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+    color: #fff;
+}
+
+.certificate-feedback-body {
+    padding: 1.25rem;
+}
+
+.certificate-feedback-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.certificate-feedback-footer {
+    justify-content: flex-end;
+}
+</style>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if enrollments %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('certificateFeedbackModal');
+    const form = document.getElementById('certificateFeedbackForm');
+    const courseTitle = document.getElementById('certificateFeedbackCourseTitle');
+    const nextUrlInput = document.getElementById('certificateFeedbackNextUrl');
+
+    if (!modal || !form || !courseTitle || !nextUrlInput) {
+        return;
+    }
+
+    const closeModal = function () {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    };
+
+    document.querySelectorAll('.certificate-feedback-trigger').forEach(function (trigger) {
+        trigger.addEventListener('click', function () {
+        const courseId = trigger.getAttribute('data-course-id');
+        const nextUrl = trigger.getAttribute('data-next-url');
+        const title = trigger.getAttribute('data-course-title') || 'this course';
+
+        form.action = `/reviews/add/${courseId}/`;
+        nextUrlInput.value = nextUrl;
+        courseTitle.textContent = title;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    modal.querySelector('.certificate-feedback-close').addEventListener('click', closeModal);
+    modal.querySelector('.certificate-feedback-cancel').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

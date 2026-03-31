@@ -235,9 +235,21 @@
                             <div class="alert alert-success text-center">
                                 <i class="fas fa-trophy"></i> Course Completed!
                             </div>
+                            {% if user_review %}
                             <a href="{% url 'certificates:generate' enrollment.id %}" class="btn btn-success w-100 mb-2">
                                 <i class="fas fa-certificate"></i> View Certificate
                             </a>
+                            {% else %}
+                            <button
+                                type="button"
+                                class="btn btn-success w-100 mb-2 certificate-feedback-trigger"
+                                data-course-id="{{ enrollment.course.id }}"
+                                data-course-title="{{ enrollment.course.title }}"
+                                data-next-url="{% url 'certificates:generate' enrollment.id %}"
+                            >
+                                <i class="fas fa-certificate"></i> View Certificate
+                            </button>
+                            {% endif %}
                             {% endif %}
                             {% endif %}
                         {% elif user == course.instructor or user.is_admin %}
@@ -323,7 +335,7 @@
                 </div>
             </div>
 
-            {% if enrollment.completed and user.is_student %}
+            {% if enrollment.completed and user.is_student and not user_review %}
             <div class="card course-detail-card">
                 <div class="card-header">
                     <h5 class="mb-0">Leave a Review</h5>
@@ -348,8 +360,173 @@
                     </form>
                 </div>
             </div>
+            {% elif enrollment.completed and user.is_student and user_review %}
+            <div class="card course-detail-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Review</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2 text-warning">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= user_review.rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                        {% endfor %}
+                    </p>
+                    {% if user_review.comment %}
+                    <p class="mb-2">{{ user_review.comment }}</p>
+                    {% else %}
+                    <p class="mb-2 text-muted">You submitted a rating without a comment.</p>
+                    {% endif %}
+                    <small class="text-muted">Submitted on {{ user_review.created_at|date:"M d, Y" }}</small>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+{% if enrollment.completed and user.is_student and not user_review %}
+<div class="certificate-feedback-modal" id="certificateFeedbackModal" aria-hidden="true">
+    <div class="certificate-feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="certificateFeedbackModalLabel">
+        <div class="certificate-feedback-content">
+            <form method="post" id="certificateFeedbackForm">
+                {% csrf_token %}
+                <div class="certificate-feedback-header">
+                    <h5 class="modal-title" id="certificateFeedbackModalLabel">Share Feedback Before Certificate</h5>
+                    <button type="button" class="certificate-feedback-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="certificate-feedback-body">
+                    <p class="text-muted mb-3">Tell us how your course experience was before opening your certificate.</p>
+                    <p class="fw-semibold mb-3" id="certificateFeedbackCourseTitle">{{ enrollment.course.title }}</p>
+                    <input type="hidden" name="next" id="certificateFeedbackNextUrl" value="{% url 'certificates:generate' enrollment.id %}">
+                    <div class="mb-3">
+                        <label for="certificateFeedbackRating" class="form-label">Rating</label>
+                        <select name="rating" id="certificateFeedbackRating" class="form-select" required>
+                            <option value="">Select rating</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label for="certificateFeedbackComment" class="form-label">Feedback</label>
+                        <textarea name="comment" id="certificateFeedbackComment" class="form-control" rows="4" placeholder="What did you like? What could be improved?"></textarea>
+                    </div>
+                </div>
+                <div class="certificate-feedback-footer">
+                    <button type="button" class="btn btn-outline-secondary certificate-feedback-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Feedback & Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+{% if enrollment.completed and user.is_student and not user_review %}
+<style>
+.certificate-feedback-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 1300;
+    padding: 1rem;
+}
+
+.certificate-feedback-modal.active {
+    display: flex;
+}
+
+.certificate-feedback-dialog {
+    width: min(100%, 560px);
+}
+
+.certificate-feedback-content {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.certificate-feedback-header,
+.certificate-feedback-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.certificate-feedback-header {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+    color: #fff;
+}
+
+.certificate-feedback-body {
+    padding: 1.25rem;
+}
+
+.certificate-feedback-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.certificate-feedback-footer {
+    justify-content: flex-end;
+}
+</style>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if enrollment.completed and user.is_student and not user_review %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('certificateFeedbackModal');
+    const form = document.getElementById('certificateFeedbackForm');
+
+    if (!modal || !form) {
+        return;
+    }
+
+    const closeModal = function () {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    };
+
+    document.querySelectorAll('.certificate-feedback-trigger').forEach(function (trigger) {
+        trigger.addEventListener('click', function () {
+            form.action = `/reviews/add/${trigger.getAttribute('data-course-id')}/`;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    modal.querySelector('.certificate-feedback-close').addEventListener('click', closeModal);
+    modal.querySelector('.certificate-feedback-cancel').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

@@ -1,10 +1,16 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, RegistrationRequest
-from django.utils.html import format_html
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Count, Q
+from django.http import HttpResponse
+from django.urls import path, reverse
+from django.utils import timezone
+from django.utils.html import format_html
+from openpyxl import Workbook
+from openpyxl.styles import Font
+
+from .models import User, RegistrationRequest
 
 class CustomUserAdmin(UserAdmin):
     model = User
@@ -86,6 +92,25 @@ class RegistrationRequestAdmin(admin.ModelAdmin):
     ordering = ('-submitted_at',)
     readonly_fields = ('submitted_at',)
     actions = ['mark_processed', 'mark_rejected']
+    change_list_template = 'admin/accounts/registrationrequest/change_list.html'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                'export/',
+                self.admin_site.admin_view(self.export_registration_requests),
+                name='accounts_registrationrequest_export',
+            ),
+        ]
+        return custom_urls + urls
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        export_url = reverse('admin:accounts_registrationrequest_export')
+        query_string = request.GET.urlencode()
+        extra_context['export_url'] = f'{export_url}?{query_string}' if query_string else export_url
+        return super().changelist_view(request, extra_context=extra_context)
 
     def _send_registration_email(self, obj):
         registration_url = f"{settings.SITE_URL}/accounts/register/"
@@ -127,6 +152,48 @@ LMS Team
         updated = queryset.update(status='rejected')
         self.message_user(request, f"{updated} registration request(s) marked rejected.")
     mark_rejected.short_description = 'Mark selected registration requests as rejected'
+
+    def export_registration_requests(self, request):
+        changelist = self.get_changelist_instance(request)
+        queryset = changelist.get_queryset(request)
+
+        workbook = Workbook()
+        worksheet = workbook.active
+        worksheet.title = 'Registration Requests'
+
+        headers = ['ID', 'Name', 'Email', 'Phone', 'Status', 'Submitted At']
+        worksheet.append(headers)
+
+        for cell in worksheet[1]:
+            cell.font = Font(bold=True)
+
+        for registration_request in queryset:
+            submitted_at = registration_request.submitted_at
+            if timezone.is_aware(submitted_at):
+                submitted_at = timezone.localtime(submitted_at)
+
+            worksheet.append([
+                registration_request.id,
+                registration_request.name,
+                registration_request.email,
+                registration_request.phone,
+                registration_request.get_status_display(),
+                submitted_at.strftime('%Y-%m-%d %H:%M:%S') if submitted_at else '',
+            ])
+
+        for column_cells in worksheet.columns:
+            max_length = max(len(str(cell.value or '')) for cell in column_cells)
+            worksheet.column_dimensions[column_cells[0].column_letter].width = min(max_length + 2, 40)
+
+        timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = (
+            f'attachment; filename="registration_requests_{timestamp}.xlsx"'
+        )
+        workbook.save(response)
+        return response
 
 
 admin.site.register(User, CustomUserAdmin)

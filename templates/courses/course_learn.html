@@ -59,7 +59,15 @@
                     </div>
                     {% if enrollment.completed %}
                         <p class="text-success">You have completed this course!</p>
-                        <a href="{% url 'view_certificate' enrollment.certificate.id %}" class="btn btn-success btn-sm">View Certificate</a>
+                        <button
+                            type="button"
+                            class="btn btn-success btn-sm certificate-feedback-trigger"
+                            data-course-id="{{ enrollment.course.id }}"
+                            data-course-title="{{ enrollment.course.title }}"
+                            data-next-url="{% url 'view_certificate' enrollment.certificate.id %}"
+                        >
+                            View Certificate
+                        </button>
                     {% else %}
                         <p class="text-muted">Keep going!</p>
                     {% endif %}
@@ -68,4 +76,152 @@
         </div>
     </div>
 </div>
+
+{% if enrollment.completed %}
+<div class="certificate-feedback-modal" id="certificateFeedbackModal" aria-hidden="true">
+    <div class="certificate-feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="certificateFeedbackModalLabel">
+        <div class="certificate-feedback-content">
+            <form method="post" id="certificateFeedbackForm">
+                {% csrf_token %}
+                <div class="certificate-feedback-header">
+                    <h5 class="modal-title" id="certificateFeedbackModalLabel">Share Feedback Before Certificate</h5>
+                    <button type="button" class="certificate-feedback-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="certificate-feedback-body">
+                    <p class="text-muted mb-3">Tell us how your course experience was before opening your certificate.</p>
+                    <p class="fw-semibold mb-3" id="certificateFeedbackCourseTitle">{{ enrollment.course.title }}</p>
+                    <input type="hidden" name="next" id="certificateFeedbackNextUrl" value="{% url 'view_certificate' enrollment.certificate.id %}">
+                    <div class="mb-3">
+                        <label for="certificateFeedbackRating" class="form-label">Rating</label>
+                        <select name="rating" id="certificateFeedbackRating" class="form-select" required>
+                            <option value="">Select rating</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label for="certificateFeedbackComment" class="form-label">Feedback</label>
+                        <textarea
+                            name="comment"
+                            id="certificateFeedbackComment"
+                            class="form-control"
+                            rows="4"
+                            placeholder="What did you like? What could be improved?"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="certificate-feedback-footer">
+                    <button type="button" class="btn btn-outline-secondary certificate-feedback-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Feedback & View Certificate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.certificate-feedback-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 1300;
+    padding: 1rem;
+}
+
+.certificate-feedback-modal.active {
+    display: flex;
+}
+
+.certificate-feedback-dialog {
+    width: min(100%, 560px);
+}
+
+.certificate-feedback-content {
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.certificate-feedback-header,
+.certificate-feedback-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+.certificate-feedback-header {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+    color: #fff;
+}
+
+.certificate-feedback-body {
+    padding: 1.25rem;
+}
+
+.certificate-feedback-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.certificate-feedback-footer {
+    justify-content: flex-end;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('certificateFeedbackModal');
+    const form = document.getElementById('certificateFeedbackForm');
+
+    if (!modal || !form) {
+        return;
+    }
+
+    const closeModal = function () {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    };
+
+    document.querySelectorAll('.certificate-feedback-trigger').forEach(function (trigger) {
+        trigger.addEventListener('click', function () {
+            form.action = `/reviews/add/${trigger.getAttribute('data-course-id')}/`;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        });
+    });
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    modal.querySelector('.certificate-feedback-close').addEventListener('click', closeModal);
+    modal.querySelector('.certificate-feedback-cancel').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
+</script>
 {% endblock %}
