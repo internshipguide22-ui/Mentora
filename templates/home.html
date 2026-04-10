@@ -12,7 +12,7 @@
             <div class="d-flex gap-3" style="flex-wrap: wrap;">
                 <a href="{% url 'courses:course_list' %}" class="btn btn-primary btn-lg" style="min-width: 180px;">Browse Courses</a>
                 {% if not user.is_authenticated %}
-                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg" style="min-width: 180px;">Sign Up</a>
+                <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary btn-lg" style="min-width: 180px;" onclick="openRegistrationModal(event, 'Sign Up')">Sign Up</a>
                 {% endif %}
             </div>
         </div>

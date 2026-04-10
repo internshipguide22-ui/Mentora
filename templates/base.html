@@ -117,7 +117,7 @@
                 </div>
                 {% else %}
                 <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
-                <a class="btn-register" href="#" onclick="openRegistrationModal(event)">Register</a>
+                <a class="btn-register" href="{% url 'accounts:register' %}" onclick="openRegistrationModal(event)">Register</a>
                 {% endif %}
             </div>
         </div>
@@ -224,9 +224,15 @@
         dropdown.classList.toggle('active');
     }
 
-    function openRegistrationModal(event) {
-        event.preventDefault();
+    function openRegistrationModal(event, title) {
+        if (event) {
+            event.preventDefault();
+        }
         const modal = document.getElementById('registrationModal');
+        const modalTitle = document.getElementById('registrationTitle');
+        if (modalTitle) {
+            modalTitle.textContent = title || 'Register for Access';
+        }
         if (modal) {
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');

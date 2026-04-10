@@ -38,7 +38,7 @@
                         </form>
             </div>
             <div class="card-footer text-center" style="padding: 1rem; background: var(--gray-100);">
-                <small>Don't have an account? <a href="{% url 'accounts:register' %}" style="color: var(--primary); font-weight: 600;">Sign Up</a></small>
+                <small>Don't have an account? <a href="{% url 'accounts:register' %}" style="color: var(--primary); font-weight: 600;" onclick="openRegistrationModal(event, 'Sign Up')">Sign Up</a></small>
             </div>
         </div>
     </div>
