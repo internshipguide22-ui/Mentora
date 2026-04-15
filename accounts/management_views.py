@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.db.models import Prefetch
 from accounts.decorators import admin_required
 from accounts.models import User
 from courses.models import Course, Enrollment
@@ -13,11 +14,43 @@ def manage_users(request):
     search = request.GET.get('search', '')
     user_type = request.GET.get('user_type', '')
     
-    users = User.objects.all()
+    users = User.objects.prefetch_related(
+        Prefetch(
+            'enrollments',
+            queryset=Enrollment.objects.select_related('course').filter(is_active=True)
+        )
+    )
     if search:
         users = users.filter(Q(username__icontains=search) | Q(email__icontains=search))
     if user_type:
         users = users.filter(user_type=user_type)
+
+    users = list(users)
+    for user in users:
+        if user.user_type != 'student':
+            user.paid_courses_display = 'N/A'
+            user.payment_status_display = 'N/A'
+            continue
+
+        active_enrollments = list(user.enrollments.all())
+        if not active_enrollments:
+            user.paid_courses_display = 'NA'
+            user.payment_status_display = 'N/A'
+            continue
+
+        paid_enrollments = [
+            enrollment for enrollment in active_enrollments
+            if enrollment.course.course_access_type == 'paid'
+        ]
+
+        if paid_enrollments:
+            user.paid_courses_display = ', '.join(
+                enrollment.course.title for enrollment in paid_enrollments
+            )
+            user.payment_status_display = 'Paid'
+        else:
+            user.paid_courses_display = 'NA'
+            user.payment_status_display = 'N/A'
     
     return render(request, 'management/users.html', {'users': users, 'search': search, 'user_type': user_type})
 

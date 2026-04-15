@@ -26,10 +26,25 @@
 }
 
 /* Base Typography - Mobile First */
+html, body {
+    min-height: 100%;
+}
+
 body {
     font-size: clamp(0.875rem, 2vw, 1rem);
     color: var(--gray-900);
     background: var(--light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
 }
 
 h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; line-height: 1.2; margin-bottom: 1rem; }

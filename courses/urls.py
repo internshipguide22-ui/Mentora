@@ -17,6 +17,9 @@ urlpatterns = [
     # Lesson URLs
     path('<int:course_pk>/lessons/add/', views.LessonCreateView.as_view(), name='lesson_create'),
     path('lessons/<int:pk>/', views.lesson_detail, name='lesson_detail'),
+    path('lessons/<int:pk>/video-notes/add/', views.add_video_note, name='add_video_note'),
+    path('lessons/<int:pk>/video-notes/manage/', views.manage_video_notes, name='manage_video_notes'),
+    path('lessons/<int:lesson_pk>/video-notes/<int:note_pk>/delete/', views.delete_video_note, name='delete_video_note'),
     path('lessons/<int:pk>/update/', views.LessonUpdateView.as_view(), name='lesson_update'),
     path('lessons/<int:pk>/delete/', views.LessonDeleteView.as_view(), name='lesson_delete'),
     path('lessons/<int:pk>/complete/', views.mark_lesson_complete, name='lesson_complete'),

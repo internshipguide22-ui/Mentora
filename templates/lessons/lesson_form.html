@@ -103,13 +103,27 @@
                             <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save"></i> Save Lesson
-                            </button>
+                            <div class="d-flex gap-2">
+                                {% if lesson %}
+                                <a href="{% url 'courses:manage_video_notes' lesson.pk %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-sticky-note"></i> Video Notes
+                                </a>
+                                {% endif %}
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Lesson
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
+
+            {% if lesson %}
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle"></i>
+                Use <strong>Video Notes</strong> to add second-wise notes for this lesson's video that students can see on the progress bar.
+            </div>
+            {% endif %}
 
             <div class="card mt-4">
                 <div class="card-header bg-info text-white">

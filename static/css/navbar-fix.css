@@ -37,12 +37,14 @@
     transition: all 0.2s;
 }
 
-.navbar .dropdown-item form {
+.navbar .dropdown-form {
     margin: 0;
     padding: 0;
+    display: block;
+    width: 100%;
 }
 
-.navbar .dropdown-item button {
+.navbar .dropdown-button {
     width: 100%;
     text-align: left;
     background: none;
@@ -50,7 +52,10 @@
     color: inherit;
     font: inherit;
     cursor: pointer;
-    padding: 0;
+    display: block;
+    padding: inherit;
+    transition: inherit;
+    border-radius: inherit;
 }
 
 /* Mobile Dropdown */
@@ -73,6 +78,11 @@
     .navbar .dropdown-item:hover {
         background: rgba(255,255,255,0.1);
         border-radius: 0.25rem;
+    }
+
+    .navbar .dropdown-button:hover {
+        background: rgba(255,255,255,0.1);
+        color: inherit;
     }
 }
 
@@ -101,6 +111,11 @@
         background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
         color: #0369a1;
         padding-left: 1.75rem;
+    }
+
+    .navbar .dropdown-button:hover {
+        background: linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%);
+        color: #0369a1;
     }
     
     .navbar .dropdown-item:first-child {

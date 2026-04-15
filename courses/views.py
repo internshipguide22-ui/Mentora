@@ -6,9 +6,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.db import models
+from django.db import transaction
 
-from .models import Course, Lesson, Enrollment, Module, Category, CourseNote
-from .forms import CourseForm, LessonForm, CourseNoteForm
+from .models import Course, Lesson, Enrollment, Module, Category, CourseNote, VideoNote
+from .forms import CourseForm, LessonForm, CourseNoteForm, VideoNoteForm
 from .progress import get_module_access_map, get_completed_quiz_ids
 from accounts.decorators import student_required, instructor_required
 
@@ -64,6 +65,8 @@ class CourseDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        for module in self.object.modules.all():
+            module.normalize_lesson_order()
         modules = list(self.object.modules.prefetch_related('lessons', 'quizzes').all())
         context['modules'] = modules
 
@@ -186,6 +189,7 @@ class LessonCreateView(LoginRequiredMixin, CreateView):
         course = get_object_or_404(Course, pk=self.kwargs['course_pk'])
         context['course'] = course
         context['has_modules'] = course.modules.exists()
+        context['lesson'] = getattr(self, 'object', None)
         return context
 
     def form_valid(self, form):
@@ -214,6 +218,17 @@ class LessonUpdateView(LoginRequiredMixin, UpdateView):
             return super().get_queryset()
         return super().get_queryset().filter(module__course__instructor=self.request.user)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['course'] = self.get_object().module.course
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['course'] = self.object.module.course
+        context['lesson'] = self.object
+        return context
+
     def form_valid(self, form):
         messages.success(self.request, "Lesson updated successfully!")
         return super().form_valid(form)
@@ -230,9 +245,17 @@ class LessonDeleteView(LoginRequiredMixin, DeleteView):
             return super().get_queryset()
         return super().get_queryset().filter(module__course__instructor=self.request.user)
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Lesson deleted successfully!")
-        return super().delete(request, *args, **kwargs)
+    def form_valid(self, form):
+        self.object = self.get_object()
+        module = self.object.module
+
+        with transaction.atomic():
+            response = super().form_valid(form)
+
+            module.normalize_lesson_order()
+
+        messages.success(self.request, "Lesson deleted successfully and lesson numbers were updated.")
+        return response
 
     def get_success_url(self):
         from django.urls import reverse
@@ -295,7 +318,10 @@ def lesson_detail(request, pk):
     is_instructor = request.user == course.instructor
     
     if not (is_enrolled or is_instructor or request.user.is_admin):
-        messages.error(request, "You must be enrolled in this course to view lessons.")
+        if course.course_access_type == 'paid':
+            messages.error(request, "Complete the payment for this course to view lessons.")
+        else:
+            messages.error(request, "You must be enrolled in this course to view lessons.")
         return redirect('courses:course_detail', pk=course.pk)
 
     if is_enrolled and request.user.is_student:
@@ -329,8 +355,85 @@ def lesson_detail(request, pk):
         'is_completed': is_completed,
         'quizzes_completed': quizzes_completed,
         'has_quizzes': lesson_quizzes.exists(),
+        'video_notes': VideoNote.objects.filter(lesson=lesson).select_related('created_by'),
+        'video_note_form': VideoNoteForm(),
+        'can_manage_video_notes': is_instructor or request.user.is_admin,
     }
     return render(request, 'lessons/lesson_detail.html', context)
+
+
+@login_required
+def add_video_note(request, pk):
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course = lesson.module.course
+
+    if not (request.user == course.instructor or request.user.is_admin):
+        messages.error(request, "Only the instructor or admin can add second-wise video notes.")
+        return redirect('courses:lesson_detail', pk=lesson.pk)
+
+    if request.method != 'POST':
+        return redirect('courses:lesson_detail', pk=lesson.pk)
+
+    form = VideoNoteForm(request.POST)
+    if form.is_valid():
+        video_note = form.save(commit=False)
+        video_note.lesson = lesson
+        video_note.created_by = request.user
+        video_note.save()
+        messages.success(request, "Video note added to the lesson.")
+    else:
+        messages.error(request, "Could not save the video note. Please check the form and try again.")
+
+    return redirect('courses:lesson_detail', pk=lesson.pk)
+
+
+@login_required
+def manage_video_notes(request, pk):
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course = lesson.module.course
+
+    if not (request.user == course.instructor or request.user.is_admin):
+        messages.error(request, "Only the instructor or admin can manage video notes.")
+        return redirect('courses:lesson_detail', pk=lesson.pk)
+
+    if request.method == 'POST':
+        form = VideoNoteForm(request.POST)
+        if form.is_valid():
+            video_note = form.save(commit=False)
+            video_note.lesson = lesson
+            video_note.created_by = request.user
+            video_note.save()
+            messages.success(request, "Video note added successfully.")
+            return redirect('courses:manage_video_notes', pk=lesson.pk)
+        messages.error(request, "Could not save the video note. Please check the form and try again.")
+    else:
+        form = VideoNoteForm()
+
+    context = {
+        'lesson': lesson,
+        'course': course,
+        'video_notes': VideoNote.objects.filter(lesson=lesson).select_related('created_by'),
+        'video_note_form': form,
+    }
+    return render(request, 'lessons/manage_video_notes.html', context)
+
+
+@login_required
+def delete_video_note(request, lesson_pk, note_pk):
+    lesson = get_object_or_404(Lesson, pk=lesson_pk)
+    course = lesson.module.course
+
+    if not (request.user == course.instructor or request.user.is_admin):
+        messages.error(request, "Only the instructor or admin can delete video notes.")
+        return redirect('courses:lesson_detail', pk=lesson.pk)
+
+    if request.method != 'POST':
+        return redirect('courses:manage_video_notes', pk=lesson.pk)
+
+    video_note = get_object_or_404(VideoNote, pk=note_pk, lesson=lesson)
+    video_note.delete()
+    messages.success(request, "Video note deleted successfully.")
+    return redirect('courses:manage_video_notes', pk=lesson.pk)
 
 @login_required
 @student_required

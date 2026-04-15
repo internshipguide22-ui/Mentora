@@ -1,5 +1,5 @@
 from django import forms
-from .models import Course, Lesson, CourseNote
+from .models import Course, Lesson, CourseNote, VideoNote
 from accounts.models import User
 
 class CourseForm(forms.ModelForm):
@@ -33,9 +33,10 @@ class CourseForm(forms.ModelForm):
     
     class Meta:
         model = Course
-        fields = ['code', 'title', 'description', 'instructor', 'category', 'thumbnail', 'syllabus']
+        fields = ['code', 'title', 'description', 'course_access_type', 'instructor', 'category', 'thumbnail', 'syllabus']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
+            'course_access_type': forms.Select(),
         }
 
 class LessonForm(forms.ModelForm):
@@ -71,4 +72,22 @@ class CourseNoteForm(forms.ModelForm):
                 'class': 'form-control'
             }),
             'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class VideoNoteForm(forms.ModelForm):
+    class Meta:
+        model = VideoNote
+        fields = ['note_text', 'timestamp_seconds']
+        widgets = {
+            'note_text': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Write a note about this part of the lesson...'
+            }),
+            'timestamp_seconds': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'placeholder': 'Enter second'
+            }),
         }

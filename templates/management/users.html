@@ -43,6 +43,8 @@
                         <th>Username</th>
                         <th>Email</th>
                         <th>Type</th>
+                        <th>Payment Status</th>
+                        <th>Paid Course</th>
                         <th>Active</th>
                         <th>Joined</th>
                         <th>Actions</th>
@@ -55,6 +57,20 @@
                         <td>{{ user_item.email }}</td>
                         <td><span class="badge bg-primary">{{ user_item.user_type }}</span></td>
                         <td>
+                            {% if user_item.user_type == 'student' %}
+                                {% if user_item.payment_status_display == 'Paid' %}
+                                <span class="badge bg-success">{{ user_item.payment_status_display }}</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark">{{ user_item.payment_status_display }}</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td style="max-width: 280px; white-space: normal; word-break: break-word; overflow-wrap: anywhere;">
+                            {{ user_item.paid_courses_display }}
+                        </td>
+                        <td>
                             {% if user_item.is_active %}
                             <span class="badge bg-success">Active</span>
                             {% else %}
@@ -63,8 +79,12 @@
                         </td>
                         <td>{{ user_item.date_joined|date:"M d, Y" }}</td>
                         <td>
-                            <a href="{% url 'edit_user' user_item.id %}" class="btn btn-sm btn-warning">Edit</a>
-                            <a href="{% url 'delete_user' user_item.id %}" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="{% url 'edit_user' user_item.id %}" class="btn btn-sm btn-warning" title="Edit user">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_user' user_item.id %}" class="btn btn-sm btn-danger" title="Delete user">
+                                <i class="fas fa-trash"></i>
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}

@@ -74,6 +74,11 @@
                                                 <div class="d-grid gap-2">
                                                     <a href="{% url 'course_detail' enrollment.course.id %}" class="btn btn-outline-primary">Review Course</a>
                                                     {% if enrollment.certificate %}
+                                                        {% if enrollment.course.id in reviewed_course_ids %}
+                                                        <a href="{% url 'view_certificate' enrollment.certificate.id %}" class="btn btn-success">
+                                                            <i class="fas fa-certificate me-2"></i>View Certificate
+                                                        </a>
+                                                        {% else %}
                                                         <button
                                                             type="button"
                                                             class="btn btn-success certificate-feedback-trigger"
@@ -83,7 +88,13 @@
                                                         >
                                                             <i class="fas fa-certificate me-2"></i>View Certificate
                                                         </button>
+                                                        {% endif %}
                                                     {% else %}
+                                                        {% if enrollment.course.id in reviewed_course_ids %}
+                                                        <a href="{% url 'generate_certificate' enrollment.id %}" class="btn btn-outline-success">
+                                                            <i class="fas fa-certificate me-2"></i>Generate Certificate
+                                                        </a>
+                                                        {% else %}
                                                         <button
                                                             type="button"
                                                             class="btn btn-outline-success certificate-feedback-trigger"
@@ -93,6 +104,7 @@
                                                         >
                                                             <i class="fas fa-certificate me-2"></i>Generate Certificate
                                                         </button>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -125,6 +137,11 @@
                                                 <h5 class="card-title">{{ certificate.enrollment.course.title }}</h5>
                                                 <p class="card-text text-muted">Issued: {{ certificate.issued_date|date:"M d, Y" }}</p>
                                                 <div class="d-grid gap-2">
+                                                    {% if certificate.enrollment.course.id in reviewed_course_ids %}
+                                                    <a href="{% url 'view_certificate' certificate.id %}" class="btn btn-primary">
+                                                        <i class="fas fa-eye me-2"></i>View Certificate
+                                                    </a>
+                                                    {% else %}
                                                     <button
                                                         type="button"
                                                         class="btn btn-primary certificate-feedback-trigger"
@@ -134,6 +151,7 @@
                                                     >
                                                         <i class="fas fa-eye me-2"></i>View Certificate
                                                     </button>
+                                                    {% endif %}
                                                     <a href="{{ certificate.verification_url }}" target="_blank" class="btn btn-outline-secondary">
                                                         <i class="fas fa-qrcode me-2"></i>Verify
                                                     </a>

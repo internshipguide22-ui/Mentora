@@ -3,6 +3,173 @@
 
 {% block title %}{{ lesson.title }} - Lesson{% endblock %}
 
+{% block extra_css %}
+<style>
+.video-player-shell {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.custom-video-element {
+    display: block;
+    width: 100%;
+    background: #000000;
+}
+
+.custom-video-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem 1.05rem;
+    background: #ffffff;
+    color: #334155;
+    border-top: 1px solid #e2e8f0;
+}
+
+.video-control-button {
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.video-control-button:hover {
+    background: #4338ca;
+}
+
+.video-time-label {
+    min-width: 48px;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+    color: #475569;
+}
+
+.video-progress-wrap {
+    position: relative;
+    flex: 1;
+    padding: 1.2rem 0 0.35rem;
+}
+
+.video-progress-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    cursor: pointer;
+}
+
+.video-progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #4f46e5 0%, #2563eb 100%);
+}
+
+.video-progress-note {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.35);
+    cursor: pointer;
+    z-index: 2;
+}
+
+.video-progress-note.is-active {
+    background: #ef4444;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+.video-progress-hover {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    border: 2px solid #2563eb;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.video-progress-tooltip {
+    position: absolute;
+    bottom: calc(100% + 14px);
+    left: 0;
+    transform: translateX(-50%);
+    min-width: 170px;
+    max-width: 260px;
+    padding: 0.65rem 0.8rem;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.96);
+    color: #ffffff;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 4;
+}
+
+.video-progress-tooltip.is-visible,
+.video-progress-hover.is-visible {
+    opacity: 1;
+}
+
+.video-progress-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
+}
+
+.video-progress-tooltip-time {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #c7d2fe;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .custom-video-controls {
+        gap: 0.6rem;
+        padding: 0.8rem;
+    }
+
+    .video-control-button {
+        width: 38px;
+        height: 38px;
+    }
+
+    .video-time-label {
+        min-width: 42px;
+        font-size: 0.82rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block breadcrumb %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -32,12 +199,45 @@
                     {% if lesson.video_file %}
                     <div class="mb-4">
                         <h4>Video Lesson</h4>
-                        <div class="ratio ratio-16x9">
-                            <video controls class="w-100">
+                        <div class="video-player-shell" id="custom-video-player">
+                            <div class="ratio ratio-16x9">
+                            <video controls class="custom-video-element" id="lesson-video-player">
                                 <source src="{{ lesson.video_file.url }}" type="video/mp4">
                                 Your browser does not support the video tag.
                             </video>
+                            </div>
+                            <div class="custom-video-controls" id="custom-video-controls">
+                                <button type="button" class="video-control-button" id="video-play-toggle" aria-label="Play or pause video">
+                                    <i class="fas fa-play" id="video-play-icon"></i>
+                                </button>
+                                <span class="video-time-label" id="video-current-time">00:00</span>
+                                <div class="video-progress-wrap">
+                                    <div class="video-progress-bar" id="video-progress-bar">
+                                        <div class="video-progress-fill" id="video-progress-fill"></div>
+                                        {% for note in video_notes %}
+                                        <button
+                                            type="button"
+                                            class="video-progress-note"
+                                            data-timestamp="{{ note.timestamp_seconds }}"
+                                            data-note-text="{{ note.note_text|escape }}"
+                                            data-time-label="{{ note.formatted_timestamp }}"
+                                            aria-label="Jump to {{ note.formatted_timestamp }}"
+                                        ></button>
+                                        {% endfor %}
+                                        <div class="video-progress-hover" id="video-progress-hover"></div>
+                                        <div class="video-progress-tooltip" id="video-progress-tooltip"></div>
+                                    </div>
+                                </div>
+                                <span class="video-time-label text-end" id="video-total-time">00:00</span>
+                            </div>
                         </div>
+                        {% if can_manage_video_notes %}
+                        <div class="d-flex justify-content-end mt-3">
+                            <a href="{% url 'courses:manage_video_notes' lesson.pk %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-sticky-note"></i> Manage Video Notes
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
 
@@ -79,7 +279,7 @@
                         </a>
                     </div>
                     {% endif %}
-                    
+
                     <!-- <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center">
                             <h4>Quizzes</h4>
@@ -163,4 +363,255 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const video = document.getElementById('lesson-video-player');
+    const timestampInput = document.getElementById('id_timestamp_seconds');
+    const timestampLabel = document.getElementById('video-note-time-label');
+    const captureButton = document.getElementById('capture-video-time');
+    const playToggle = document.getElementById('video-play-toggle');
+    const playIcon = document.getElementById('video-play-icon');
+    const currentTimeLabel = document.getElementById('video-current-time');
+    const totalTimeLabel = document.getElementById('video-total-time');
+    const progressBar = document.getElementById('video-progress-bar');
+    const progressFill = document.getElementById('video-progress-fill');
+    const hoverThumb = document.getElementById('video-progress-hover');
+    const progressTooltip = document.getElementById('video-progress-tooltip');
+    const noteMarkers = document.querySelectorAll('.video-progress-note');
+
+    function formatTimestamp(totalSeconds) {
+        const seconds = Number(totalSeconds || 0);
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+
+        if (hours > 0) {
+            return [hours, minutes, remainingSeconds]
+                .map((value) => String(value).padStart(2, '0'))
+                .join(':');
+        }
+
+        return [minutes, remainingSeconds]
+            .map((value) => String(value).padStart(2, '0'))
+            .join(':');
+    }
+
+    function setTimestamp(seconds) {
+        if (!timestampInput || !timestampLabel) {
+            return;
+        }
+
+        timestampInput.value = Math.max(0, Math.floor(seconds));
+        timestampLabel.textContent = 'Selected second: ' + timestampInput.value + ' (' + formatTimestamp(timestampInput.value) + ')';
+    }
+
+    function updatePlayIcon() {
+        if (!playIcon || !video) {
+            return;
+        }
+
+        playIcon.className = video.paused ? 'fas fa-play' : 'fas fa-pause';
+    }
+
+    function positionNoteMarkers() {
+        if (!video || !noteMarkers.length || !video.duration) {
+            return;
+        }
+
+        noteMarkers.forEach(function (marker) {
+            const itemSecond = Number(marker.dataset.timestamp || 0);
+            const positionPercent = Math.min((itemSecond / video.duration) * 100, 100);
+            marker.style.left = positionPercent + '%';
+        });
+    }
+
+    function syncProgress() {
+        if (!video || !progressFill) {
+            return;
+        }
+
+        const duration = video.duration || 0;
+        const currentTime = video.currentTime || 0;
+        const progressPercent = duration ? (currentTime / duration) * 100 : 0;
+        progressFill.style.width = progressPercent + '%';
+
+        if (currentTimeLabel) {
+            currentTimeLabel.textContent = formatTimestamp(Math.floor(currentTime));
+        }
+
+        if (totalTimeLabel) {
+            totalTimeLabel.textContent = formatTimestamp(Math.floor(duration));
+        }
+    }
+
+    function syncActiveNote(currentTime) {
+        if (!noteMarkers.length) {
+            return;
+        }
+
+        const roundedTime = Math.floor(currentTime);
+        noteMarkers.forEach(function (marker) {
+            const itemSecond = Number(marker.dataset.timestamp || 0);
+            marker.classList.toggle('is-active', itemSecond === roundedTime);
+        });
+    }
+
+    function findNoteForSecond(second, tolerance) {
+        let matchedMarker = null;
+        noteMarkers.forEach(function (marker) {
+            if (Math.abs(Number(marker.dataset.timestamp || 0) - second) <= tolerance) {
+                matchedMarker = marker;
+            }
+        });
+        return matchedMarker;
+    }
+
+    function showTooltip(positionX, html) {
+        if (!progressTooltip || !hoverThumb) {
+            return;
+        }
+
+        progressTooltip.style.left = positionX + 'px';
+        progressTooltip.innerHTML = html;
+        progressTooltip.classList.add('is-visible');
+        hoverThumb.style.left = positionX + 'px';
+        hoverThumb.classList.add('is-visible');
+    }
+
+    function hideTooltip() {
+        if (progressTooltip) {
+            progressTooltip.classList.remove('is-visible');
+        }
+        if (hoverThumb) {
+            hoverThumb.classList.remove('is-visible');
+        }
+    }
+
+    function seekFromPointer(clientX) {
+        if (!video || !progressBar || !video.duration) {
+            return;
+        }
+
+        const barRect = progressBar.getBoundingClientRect();
+        const relativeX = Math.min(Math.max(clientX - barRect.left, 0), barRect.width);
+        video.currentTime = (relativeX / barRect.width) * video.duration;
+        syncProgress();
+        syncActiveNote(video.currentTime);
+    }
+
+    if (captureButton && video) {
+        captureButton.addEventListener('click', function () {
+            setTimestamp(video.currentTime);
+        });
+    }
+
+    if (video) {
+        video.removeAttribute('controls');
+
+        if (video.readyState >= 1) {
+            positionNoteMarkers();
+            syncProgress();
+        }
+
+        video.addEventListener('loadedmetadata', function () {
+            positionNoteMarkers();
+            syncProgress();
+        });
+
+        video.addEventListener('play', updatePlayIcon);
+        video.addEventListener('pause', updatePlayIcon);
+        video.addEventListener('timeupdate', function () {
+            syncProgress();
+            syncActiveNote(video.currentTime);
+        });
+    }
+
+    if (playToggle && video) {
+        playToggle.addEventListener('click', function () {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+            updatePlayIcon();
+        });
+    }
+
+    if (progressBar && video) {
+        let isDragging = false;
+
+        progressBar.addEventListener('click', function (event) {
+            seekFromPointer(event.clientX);
+        });
+
+        progressBar.addEventListener('mousedown', function (event) {
+            isDragging = true;
+            seekFromPointer(event.clientX);
+        });
+
+        document.addEventListener('mousemove', function (event) {
+            if (isDragging) {
+                seekFromPointer(event.clientX);
+            }
+
+            if (!video.duration) {
+                hideTooltip();
+                return;
+            }
+
+            const barRect = progressBar.getBoundingClientRect();
+            const isInside =
+                event.clientX >= barRect.left &&
+                event.clientX <= barRect.right &&
+                event.clientY >= barRect.top - 20 &&
+                event.clientY <= barRect.bottom + 20;
+
+            if (!isInside) {
+                if (!isDragging) {
+                    hideTooltip();
+                }
+                return;
+            }
+
+            const relativeX = Math.min(Math.max(event.clientX - barRect.left, 0), barRect.width);
+            const hoveredSecond = Math.floor((relativeX / barRect.width) * video.duration);
+            const matchedMarker = findNoteForSecond(hoveredSecond, 1);
+            const html = matchedMarker
+                ? '<span class="video-progress-tooltip-time">' + matchedMarker.dataset.timeLabel + '</span>' + matchedMarker.dataset.noteText
+                : '<span class="video-progress-tooltip-time">' + formatTimestamp(hoveredSecond) + '</span>No note at this second';
+            showTooltip(relativeX, html);
+        });
+
+        document.addEventListener('mouseup', function () {
+            isDragging = false;
+        });
+
+        progressBar.addEventListener('mouseleave', function () {
+            if (!isDragging) {
+                hideTooltip();
+            }
+        });
+    }
+
+    noteMarkers.forEach(function (marker) {
+        marker.addEventListener('click', function (event) {
+            event.stopPropagation();
+            if (!video) {
+                return;
+            }
+
+            const seconds = Number(marker.dataset.timestamp || 0);
+            video.currentTime = seconds;
+            video.play();
+            syncProgress();
+            syncActiveNote(seconds);
+        });
+    });
+
+    updatePlayIcon();
+});
+</script>
 {% endblock %}

@@ -50,7 +50,6 @@ class RegistrationRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('processed', 'Processed'),
-        ('completed', 'Completed'),
         ('rejected', 'Rejected'),
     ]
 

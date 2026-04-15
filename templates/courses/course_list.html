@@ -48,8 +48,17 @@
                 <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ course.title }}" style="height: 200px; object-fit: cover;">
                 {% endif %}
                 <div class="card-body">
-                    <span class="badge bg-primary mb-2">{{ course.category.name|default:"General" }}</span>
-                    <h5 class="card-title"><a href="{% url 'courses:course_detail' course.id %}" class="text-decoration-none text-dark stretched-link">{{ course.title }}</a></h5>
+                    <div class="d-flex gap-2 flex-wrap mb-2">
+                        <span class="badge bg-primary">{{ course.category.name|default:"General" }}</span>
+                        <span class="badge {% if course.course_access_type == 'paid' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{ course.get_course_access_type_display }}
+                        </span>
+                    </div>
+                    <h5 class="card-title">
+                        <a href="{% url 'courses:course_detail' course.id %}" class="text-decoration-none text-dark stretched-link">
+                            {{ course.title }}
+                        </a>
+                    </h5>
                     <p class="card-text">{{ course.description|truncatewords:20 }}</p>
                 </div>
                 <div class="card-footer bg-transparent">
@@ -80,4 +89,5 @@
     </nav>
     {% endif %}
 </div>
+
 {% endblock %}

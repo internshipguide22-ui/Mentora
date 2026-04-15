@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.db.models import Count, Avg, Q
 from django.utils import timezone
@@ -21,19 +20,6 @@ from quizzes.models import Quiz, QuizAttempt
 from certificates.models import Certificate
 from notifications.models import Notification
 from reviews.models import Review
-
-
-class CustomLoginView(LoginView):
-    template_name = 'registration/login.html'
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-
-        RegistrationRequest.objects.filter(
-            email__iexact=form.get_user().email
-        ).exclude(status='rejected').update(status='completed')
-
-        return response
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -116,46 +102,15 @@ def registration_request_view(request):
             return redirect('home')
         
         try:
-            registration_request = RegistrationRequest.objects.create(
+            # Record the request to DB for admin review
+            RegistrationRequest.objects.create(
                 name=name,
                 email=email,
                 phone=phone,
                 status='pending'
             )
 
-            registration_url = f"{settings.SITE_URL}/accounts/register/"
-            message = f'''Dear {name},
-
-Your registration request has been received.
-
-Please complete your registration using the link below:
-{registration_url}
-
-Best regards,
-LMS Team
-'''
-
-            email_sent = False
-            try:
-                send_mail(
-                    'Complete Your LMS Registration',
-                    message,
-                    getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@lms.com'),
-                    [email],
-                    fail_silently=False,
-                )
-                email_sent = True
-            except Exception:
-                email_sent = False
-
-            if email_sent:
-                registration_request.status = 'processed'
-                registration_request.email_sent = True
-                registration_request.save(update_fields=['status', 'email_sent'])
-                success_message = 'Registration request submitted successfully! A registration email has been sent.'
-            else:
-                success_message = 'Registration request was saved, but email delivery is not configured yet.'
-
+            success_message = 'Registration request submitted successfully!'
             if is_ajax:
                 return JsonResponse({
                     'success': True,

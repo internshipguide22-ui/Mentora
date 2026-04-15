@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from .models import Course, Enrollment, Module, Lesson, Category, CourseNote
+from .models import Course, Enrollment, Module, Lesson, Category, CourseNote, VideoNote
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -346,3 +346,10 @@ class CourseNoteAdmin(admin.ModelAdmin):
     list_display = ('title', 'course', 'uploaded_by', 'uploaded_at')
     list_filter = ('course', 'uploaded_at')
     search_fields = ('title', 'course__title', 'uploaded_by__username')
+
+
+@admin.register(VideoNote)
+class VideoNoteAdmin(admin.ModelAdmin):
+    list_display = ('lesson', 'created_by', 'timestamp_seconds', 'created_at')
+    list_filter = ('lesson__module__course', 'created_at')
+    search_fields = ('lesson__title', 'created_by__username', 'note_text')

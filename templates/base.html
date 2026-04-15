@@ -109,15 +109,15 @@
                         <a class="dropdown-item" href="{% url 'courses:course_list' %}">Browse Courses</a>
                         {% endif %}
                         <a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a>
-                        <form action="{% url 'accounts:logout' %}" method="post">
+                        <form action="{% url 'accounts:logout' %}" method="post" class="dropdown-form">
                             {% csrf_token %}
-                            <button type="submit" class="dropdown-item">Logout</button>
+                            <button type="submit" class="dropdown-item dropdown-button">Logout</button>
                         </form>
                     </div>
                 </div>
                 {% else %}
                 <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
-                <a class="btn-register" href="{% url 'accounts:register' %}" onclick="openRegistrationModal(event)">Register</a>
+                <a class="btn-register" href="#" onclick="openRegistrationModal(event)">Register</a>
                 {% endif %}
             </div>
         </div>
@@ -224,15 +224,9 @@
         dropdown.classList.toggle('active');
     }
 
-    function openRegistrationModal(event, title) {
-        if (event) {
-            event.preventDefault();
-        }
+    function openRegistrationModal(event) {
+        event.preventDefault();
         const modal = document.getElementById('registrationModal');
-        const modalTitle = document.getElementById('registrationTitle');
-        if (modalTitle) {
-            modalTitle.textContent = title || 'Register for Access';
-        }
         if (modal) {
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
