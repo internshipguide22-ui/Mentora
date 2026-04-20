@@ -212,6 +212,11 @@ if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Online compiler configuration
+# Create an API key at https://onecompiler.com/apis and set it in your environment.
+COMPILER_API_URL = os.getenv('COMPILER_API_URL', 'https://api.onecompiler.com/v1/run')
+COMPILER_API_KEY = os.getenv('COMPILER_API_KEY', '')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

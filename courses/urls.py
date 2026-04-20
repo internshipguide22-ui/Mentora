@@ -23,6 +23,7 @@ urlpatterns = [
     path('lessons/<int:pk>/update/', views.LessonUpdateView.as_view(), name='lesson_update'),
     path('lessons/<int:pk>/delete/', views.LessonDeleteView.as_view(), name='lesson_delete'),
     path('lessons/<int:pk>/complete/', views.mark_lesson_complete, name='lesson_complete'),
+    path('lessons/<int:pk>/run-code/', views.run_lesson_code, name='run_lesson_code'),
     
     # Instructor Student Management
     path('<int:pk>/students/', views.manage_course_students, name='manage_students'),

@@ -126,9 +126,6 @@
                                     <span class="status-badge completed">Completed</span>
                                     {% endif %}
                                     {% if user == course.instructor or user.is_admin %}
-                                    <a href="{% url 'courses:manage_video_notes' lesson.pk %}" class="action-btn" title="Manage Video Notes">
-                                        <i class="fas fa-sticky-note"></i>
-                                    </a>
                                     <button onclick="window.location.href='{% url 'courses:lesson_update' lesson.pk %}'" class="action-btn edit-btn" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>

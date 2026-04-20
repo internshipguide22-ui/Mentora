@@ -151,6 +151,15 @@ class Module(models.Model):
             Lesson.objects.bulk_update(updates, ['order'])
 
 class Lesson(models.Model):
+
+    LANGUAGE_PYTHON = 'python'
+    LANGUAGE_JAVASCRIPT = 'javascript'
+
+    CODING_LANGUAGE_CHOICES = [
+        (LANGUAGE_PYTHON, 'Python'),
+        (LANGUAGE_JAVASCRIPT, 'JavaScript'),
+    ]
+
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True)
@@ -158,6 +167,13 @@ class Lesson(models.Model):
     video_file = models.FileField(upload_to='lesson_videos/', blank=True, null=True, help_text="Upload video file (MP4, WebM, etc.)")
     video_url = models.URLField(blank=True, null=True, help_text="YouTube/Vimeo URL (optional reference)")
     attachment = models.FileField(upload_to='lesson_attachments/', blank=True, null=True)
+
+    has_coding_lab = models.BooleanField(default=False)
+    coding_language = models.CharField(max_length=20, choices=CODING_LANGUAGE_CHOICES, default=LANGUAGE_PYTHON, blank=True)
+    coding_instructions = models.TextField(blank=True)
+    starter_code = models.TextField(blank=True)
+    stdin_placeholder = models.TextField(blank=True)
+
     order = models.PositiveIntegerField(default=0)
 
     class Meta:

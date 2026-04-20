@@ -42,7 +42,8 @@ class CourseForm(forms.ModelForm):
 class LessonForm(forms.ModelForm):
     class Meta:
         model = Lesson
-        fields = ['title', 'description', 'content', 'video_file', 'video_url', 'attachment', 'module', 'order']
+        fields = ['title', 'description', 'content', 'video_file', 'video_url', 'attachment', 'has_coding_lab', 'coding_language',
+            'coding_instructions', 'starter_code','stdin_placeholder','module', 'order']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 10}),
             'description': forms.Textarea(attrs={'rows': 3}),
@@ -51,6 +52,9 @@ class LessonForm(forms.ModelForm):
             'video_file': 'Upload video file (main content)',
             'video_url': 'YouTube/Vimeo URL (optional reference only)',
             'attachment': 'Upload PDF, documents, images, or other files',
+            'coding_instructions': forms.Textarea(attrs={'rows': 4}),
+            'starter_code': forms.Textarea(attrs={'rows': 12}),
+            'stdin_placeholder': forms.Textarea(attrs={'rows': 3}),
         }
     
     def __init__(self, *args, **kwargs):

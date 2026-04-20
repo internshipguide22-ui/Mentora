@@ -7,11 +7,86 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.db import models
 from django.db import transaction
+import json
+import socket
+import urllib.error
+import urllib.request
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
 
 from .models import Course, Lesson, Enrollment, Module, Category, CourseNote, VideoNote
 from .forms import CourseForm, LessonForm, CourseNoteForm, VideoNoteForm
 from .progress import get_module_access_map, get_completed_quiz_ids
 from accounts.decorators import student_required, instructor_required
+
+
+def execute_with_compiler(source_code, language_key, stdin_text=''):
+    language_map = {
+        'python': {
+            'language': 'python',
+            'file_name': 'main.py',
+        },
+        'javascript': {
+            'language': 'javascript',
+            'file_name': 'main.js',
+        },
+    }
+
+    compiler_config = language_map[language_key]
+    api_url = settings.COMPILER_API_URL
+    api_key = settings.COMPILER_API_KEY
+
+    if not api_key:
+        raise RuntimeError('Compiler API key is missing. Set COMPILER_API_KEY in settings.py or environment variables.')
+
+    payload = json.dumps({
+        'language': compiler_config['language'],
+        'stdin': stdin_text,
+        'files': [
+            {
+                'name': compiler_config['file_name'],
+                'content': source_code,
+            }
+        ],
+    }).encode('utf-8')
+
+    compiler_request = urllib.request.Request(
+        api_url,
+        data=payload,
+        headers={
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+            'X-API-Key': api_key,
+        },
+        method='POST',
+    )
+
+    try:
+        with urllib.request.urlopen(compiler_request, timeout=20) as response:
+            result = json.loads(response.read().decode('utf-8'))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode('utf-8', errors='ignore')
+        raise RuntimeError(f'Compiler service returned HTTP {exc.code}. {detail}'.strip()) from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError('Compiler service is currently unreachable.') from exc
+    except socket.timeout as exc:
+        raise RuntimeError('Compiler service timed out. Please try again.') from exc
+
+    if isinstance(result, list):
+        result = result[0] if result else {}
+
+    if result.get('status') == 'failed':
+        raise RuntimeError(result.get('error') or 'Compiler service failed to process the request.')
+
+    return {
+        'stdout': result.get('stdout') or '',
+        'stderr': result.get('stderr') or '',
+        'compile_output': result.get('exception') or result.get('error') or '',
+        'status': result.get('status') or 'Unknown',
+    }
 
 # A mixin to ensure that the user is an instructor
 class InstructorRequiredMixin(UserPassesTestMixin):
@@ -580,3 +655,56 @@ def instructor_manage_all_students(request):
         'total_students': enrollments.count(),
     }
     return render(request, 'courses/instructor_manage_all_students.html', context)
+
+
+@login_required
+@require_POST
+def run_lesson_code(request, pk):
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course = lesson.module.course
+
+    is_enrolled = Enrollment.objects.filter(
+        student=request.user,
+        course=course,
+        is_active=True
+    ).exists()
+    is_instructor = request.user == course.instructor
+
+    if not (is_enrolled or is_instructor or request.user.is_admin):
+        return JsonResponse({'error': 'You are not allowed to run code for this lesson.'}, status=403)
+
+    if not lesson.has_coding_lab:
+        return JsonResponse({'error': 'Coding lab is not enabled for this lesson.'}, status=400)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request format.'}, status=400)
+
+    source_code = (data.get('code') or '').strip()
+    stdin_text = data.get('stdin') or ''
+    language = data.get('language') or lesson.coding_language
+
+    allowed_languages = {'python', 'javascript'}
+
+    if language not in allowed_languages:
+        return JsonResponse({'error': 'Unsupported language selected.'}, status=400)
+
+    if len(source_code) == 0:
+        return JsonResponse({'error': 'Please enter code before running.'}, status=400)
+
+    if len(source_code) > 10000:
+        return JsonResponse({'error': 'Code is too long.'}, status=400)
+
+    try:
+        result = execute_with_compiler(source_code, language, stdin_text)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({
+        'stdout': result.get('stdout') or '',
+        'stderr': result.get('stderr') or '',
+        'compile_output': result.get('compile_output') or '',
+        'status': result.get('status') or 'Unknown',
+    })
+

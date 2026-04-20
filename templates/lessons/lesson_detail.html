@@ -231,13 +231,6 @@
                                 <span class="video-time-label text-end" id="video-total-time">00:00</span>
                             </div>
                         </div>
-                        {% if can_manage_video_notes %}
-                        <div class="d-flex justify-content-end mt-3">
-                            <a href="{% url 'courses:manage_video_notes' lesson.pk %}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-sticky-note"></i> Manage Video Notes
-                            </a>
-                        </div>
-                        {% endif %}
                     </div>
                     {% endif %}
 
@@ -270,6 +263,47 @@
                         </div>
                     </div>
                     {% endif %}
+
+                    {% if lesson.has_coding_lab %}
+                    <div class="mb-4">
+                        <h4>Practice Code</h4>
+
+                        {% if lesson.coding_instructions %}
+                        <div class="alert alert-info">
+                            {{ lesson.coding_instructions|linebreaks }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Language</label>
+                            <select id="coding-language" class="form-control">
+                                {% for value, label in lesson.CODING_LANGUAGE_CHOICES %}
+                                <option value="{{ value }}" {% if value == lesson.coding_language %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Code</label>
+                            <textarea id="coding-editor" class="form-control" rows="14">{{ lesson.starter_code }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Input</label>
+                            <textarea id="coding-stdin" class="form-control" rows="4" placeholder="Optional input">{{ lesson.stdin_placeholder }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-dark" id="run-code-btn">Run Code</button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Output</label>
+                            <pre id="coding-output" class="p-3 bg-light border rounded" style="min-height: 140px; white-space: pre-wrap; padding-left: 20px !important;">Run your code to see output here.</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+
 
                     {% if lesson.attachment %}
                     <div class="mb-4">
@@ -612,6 +646,59 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updatePlayIcon();
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const runButton = document.getElementById('run-code-btn');
+    const editor = document.getElementById('coding-editor');
+    const stdin = document.getElementById('coding-stdin');
+    const output = document.getElementById('coding-output');
+    const language = document.getElementById('coding-language');
+
+    if (!runButton || !editor || !output || !language) {
+        return;
+    }
+
+    function getCsrfToken() {
+        const cookieValue = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='));
+        return cookieValue ? cookieValue.split('=')[1] : '';
+    }
+
+    runButton.addEventListener('click', function () {
+        output.textContent = 'Running code...';
+
+        fetch("{% url 'courses:run_lesson_code' lesson.pk %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                code: editor.value,
+                stdin: stdin ? stdin.value : '',
+                language: language.value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                output.textContent = 'Error: ' + data.error;
+                return;
+            }
+
+            const parts = [];
+            if (data.stdout) parts.push('Output:\n' + data.stdout);
+            if (data.stderr) parts.push('Error:\n' + data.stderr);
+            if (data.compile_output) parts.push('Compile Output:\n' + data.compile_output);
+            if (data.status) parts.push('Status: ' + data.status);
+
+            output.textContent = parts.length ? parts.join('\n\n') : 'No output.';
+        })
+        .catch(() => {
+            output.textContent = 'Something went wrong while running the code.';
+        });
+    });
 });
 </script>
 {% endblock %}

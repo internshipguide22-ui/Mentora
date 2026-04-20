@@ -99,6 +99,44 @@
                             <small class="text-muted">Lesson display order (0 = first)</small>
                         </div>
 
+                        {% if lesson %}
+                        <div class="card mt-4 mb-3">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0">Coding Lab Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ form.has_coding_lab|add_class:"form-check-input" }}
+                                        <label class="form-check-label" for="{{ form.has_coding_lab.id_for_label }}">
+                                            Enable coding practice in this lesson
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.coding_language.id_for_label }}" class="form-label">Language</label>
+                                    {{ form.coding_language|add_class:"form-control" }}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.coding_instructions.id_for_label }}" class="form-label">Coding Instructions</label>
+                                    {{ form.coding_instructions|add_class:"form-control" }}
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="{{ form.starter_code.id_for_label }}" class="form-label">Starter Code</label>
+                                    {{ form.starter_code|add_class:"form-control" }}
+                                </div>
+
+                                <div class="mb-0">
+                                    <label for="{{ form.stdin_placeholder.id_for_label }}" class="form-label">Sample Input</label>
+                                    {{ form.stdin_placeholder|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancel
